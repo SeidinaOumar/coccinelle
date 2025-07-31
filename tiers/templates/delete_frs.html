@@ -1,0 +1,47 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexions</title>
+  <link rel="stylesheet" href="{% static 'confirm_delete.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="login-wrapper">
+    <div class="login-box">
+      <div class="login-hidden">
+        <i class="fas fa-user-shield login-icon"></i>
+        <h2 class="login-title"><h2>Supprimer le fournisseur {{ frs.nom_frs }} ?</h2></h2>
+      </div>
+
+      <div class="login-visible">
+         
+        <i class="fas fa-user-shield login-icon"></i>
+        <h2 class="login-title"><h2>Supprimer le fournisseur "{{ frs.nom_frs }}" ?</h2></h2>
+      
+        {% if messages %}
+          <ul class="message">
+            {% for message in messages %}
+              <li class="error">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+
+        
+   <form method="post">
+    {% csrf_token %}
+    <button type="submit">Confirmer la suppression</button>
+    <a href="{% url 'frs_list' %}">Annuler</a>
+   </form>
+   </div>
+    </div>
+  </div>
+</body>
+</html>
+
+    

@@ -1,0 +1,86 @@
+{% extends "core/templates/nav0.html" %}
+{% load static %}
+
+{% block content %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'gestion_caissier.css' %}">
+{% endblock %}
+
+<!--<div class="section-header">
+    <div class="section-icon">
+       
+         <i class="fas fa-user-circle"></i>
+         
+    </div>
+    <h2 class="section-title">Gestion des Caissiers</h2>
+</div>-->
+<div class="cocci-header">
+           
+            <a href="{% url 'ajouter_caissier' %}" class="btn-cocci">+ Ajouter Caissier</a>
+        </div>
+
+<div class="main-container">
+    <div class="cocci-card">
+        
+
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher un caissier..." class="cocci-search">
+
+        <div class="table-container">
+            <table class="cocci-table">
+                <thead>
+                    <tr>
+                        <th>Profil</th>
+                        <th>Nom</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for caissier in caissiers %}
+                    <tr>
+                        <td>
+                            <div class="avatar-wrapper">
+                                <img src="{% static 'images/default-avatar.png' %}" class="avatar">
+                                <i class="fas fa-user-circle icon-overlay"></i>
+                            </div>
+                        </td>
+                        <td>{{ caissier.username }}</td>
+                        <td>{{ caissier.contact }}</td>
+                        <td>{{ caissier.email }}</td>
+                        <td>
+                            {% if caissier.is_active %}
+                            <span class="badge badge-active">Actif</span>
+                            {% else %}
+                            <span class="badge badge-inactive">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'modifier_caissier' caissier.pk %}" class="btn-edit">Modifier</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="no-result">Aucun caissier trouvé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Recherche dynamique
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const input = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#tableBody tr");
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    });
+</script>
+{% endblock %}

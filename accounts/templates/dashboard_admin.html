@@ -1,0 +1,617 @@
+{% extends "core/templates/nav.html" %}
+{% block title %}{% endblock %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard_admin.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap JS Bundle (inclut Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+{% endblock%}
+
+
+{% block floating_button %}
+  <div class="floating-action">
+  <button id="actionBtn" class="btn-action">
+    <img src="{% static 'img/cocci_bot.png' %}" alt="Action Icon" />
+    <span>Actions</span>
+  </button>
+
+  <div id="actionMenu" class="action-menu hidden">
+    <a href="#"><i class="fas fa-plus"></i> Ajouter produit</a>
+    <a href="#"><i class="fas fa-user-plus"></i> Nouveau client</a>
+    <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+  </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 mb-2">
+  
+<h4 class="text-dark fw-bold ms-4 mt-3"><i class="fas fa-tachometer-alt text-danger me-2"></i> Tableau de bord</h4>
+
+  <!-- Ligne 1 : Statistiques & Alertes -->
+  <div class="row my-3">
+   <!-- Cartes Statistiques Apex -->
+<div class="col-lg-8">
+  <div class="row mb-2 stats">
+    
+    <!-- Total Ventes avec Sparkline -->
+    <div class="col-md-6 mb-4"  style=" border-radius:12px; ">
+      <div class="card p-3 shadow-sm" style= "background: linear-gradient(to bottom, #1a1a1a, #111);
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);">
+        <h5 class="fw-bold mb-2">Total Ventes</h5>
+        <h4 id="total-ventes" class="text-light">Chargement...</h4>
+        <div id="sparkline-ventes" style="height: 50px;"></div>
+        <div class="bottom-line"></div>
+      </div>
+    </div>
+
+    <!-- Total Produits avec cercle -->
+    <div class="col-md-6 mb-3">
+      <div class="card p-3 shadow-sm d-flex flex-column align-items-center justify-content-center" 
+      style="background: linear-gradient(to bottom, #1a1a1a, #111);
+          box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);">
+        <h5 class="fw-bold mb-2 ">Total Ventes/Categories</h5>
+        <div id="donutChart" class="text-light" style="height: 40px;"></div>
+        
+      </div>
+    </div>
+
+    <!-- Alertes Stock --> 
+    
+
+    <!-- Ventes du Jour -->
+    <div class="col-md-6 mb-1">
+      
+    </div>
+
+  </div>
+</div>
+
+
+    <!-- Alertes de stock verticales -->
+    <div class="col-lg-4 mb-4">
+      <div class="stock-alerts-card p-3 rounded shadow-sm h-16" style="background-color: #222; ">
+        <h5 class="mb-3 text-white">
+          <div class="alert-dot">
+          <i class="bi bi-exclamation-circle-fill me-2 text-danger"></i> Alertes de stock
+          </div>
+        </h5>
+        <div class="alert-table" style="max-height: 78px; overflow-y: auto;">
+          {% for produit in produits_seuil %}
+          <div class="alert-row d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background-color: #333;">
+            <div>
+              <div class="fw-bold text-white">{{ produit.nom_produit }}</div>
+              <div class="text-white small">Réf: {{ produit.reference }}</div>
+              <div class="text-warning small">Quantité faible ({{ produit.quantite }} ≤ {{ produit.stock_min }})</div>
+            </div>
+            <div class="alert-dot">
+            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-white">Aucune alerte de stock faible</p>
+          {% endfor %}
+
+          {% for approv in approv_proche_expiration %}
+          <div class="alert-row d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background-color: #333;">
+            <div>
+              <div class="fw-bold text-white">{{ approv.id_produit.nom_produit }}</div>
+              <div class="text-white small">Réf: {{ approv.idproduit.reference }}</div>
+              <div class="text-warning small">Proche expiration ({{ approv.id_appro.date_expiration|date:"d/m/Y" }})</div>
+            </div>
+               <div class="alert-dot"> 
+            <i class="bi bi-clock-history text-warning"></i>
+            </div>  
+          </div>
+          {% empty %}
+          <p class="text-white">Aucun produit proche de l’expiration</p>
+          {% endfor %}
+
+          {% for approv in approv_expire %}
+          <div class="alert-row d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background-color: #333;">
+            <div>
+              <div class="fw-bold text-white">{{ approv.id_produit.nom_produit }}</div>
+              <div class="text-white small">Réf: {{ approv.id_produit.reference }}</div>
+              <div class="text-danger small">Expiré depuis le {{ approv.id_appro.date_expiration|date:"d/m/Y" }}</div>
+            </div>
+            <div class="alert-dot">
+            <i class="bi bi-x-octagon-fill text-danger"></i>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-white">Aucun produit expiré</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- Ligne 2 : Graphiques Barres + Courbe -->
+<div class="row" style="margin-top: -30px;">
+  <!-- Graphique Barres -->
+  <div class="col-md-4 mb-3">
+    <div class="chart-box" style="background-color: #1a1a1a; border-radius: 15px;">
+      <h6 class="text-white mb-0"> Ventes des 7 derniers jours</h6>
+      <div id="barChart2" style="background:#1a1a1a; padding:10px; border-radius:15px;height: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- Graphique Courbe -->
+ <div class="col-md-8 mb-3">
+  <div class="horizontal-table bg-white rounded shadow-sm p-3" >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0">
+        <i class="fas fa-clock text-danger me-2"></i> Dernières Ventes
+      </h5>
+      <a href="{% url 'liste_ventes' %}" class="btn btn-sm btn-outline-danger">Voir +</a>
+    </div>
+
+    <!-- Ajoute une div scrollable autour du tableau -->
+    <div class="table-responsive ventes-scroll" >
+      <table class="table table-hover align-middle mb-0 " >
+        <thead class="table-dark text-center">
+          <tr>
+            <th>Auteur</th>
+            <th>Date</th>
+            <th>Code Facture</th>
+            <th>Montant</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          {% for vente in ventes_recent %}
+            {% with facture=vente.facture_set.first %}
+            <tr>
+              <td class="text-start">
+               {% if vente.id_utilisateur.photo %}
+  <img src="{{ vente.id_utilisateur.photo.url }}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+  {% else %}
+  <img src="{% static 'img/default-avatar.png' %}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+   {% endif %}
+<span class="fw-semibold">{{ vente.id_utilisateur.get_full_name }}</span>
+
+              </td>
+              <td>{{ vente.date_vente|date:"d M Y H:i" }}</td>
+              <td>{{ facture.code_facture }}</td>
+              <td class="text-danger fw-bold">{{ vente.montanttotal|floatformat:0 }} FCFA</td>
+              <td>
+                <a href="javascript:void(0);" class="btn btn-sm btn-dark  btn-detail-vente"  data-id="{{ vente.id_vente }}">
+                  <i class="fas fa-eye text-danger"></i>
+                </a>
+              </td>
+            </tr>
+            {% endwith %}
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-muted text-center">Aucune vente récente</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+
+  
+
+  <!-- Ligne 4 : Tableau des ventes -->
+  <div class="row mb-4">
+    <div class="col-8">
+      <div class="chart-box p-3" style="background-color: #1a1a1a; border-radius: 15px;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-white mb-0">Évolution des ventes</h6>
+        <div>
+          <label for="periodeSelect" class="form-label text-white me-1 mb-0 small">Afficher par :</label>
+          <select id="periodeSelect" class="form-select form-select-sm d-inline-block w-auto" style="min-width: 90px;">
+            <option value="jour">Jour</option>
+            <option value="semaine">Semaine</option>
+            <option value="mois" selected>Mois</option>
+          </select>
+        </div>
+      </div>
+      <div id="lineChart" style="height: 100%; min-height: 250px;"></div>
+    </div>
+    </div>
+  </div>
+
+</div>
+<div class="modal fade" id="venteDetailModal" tabindex="-1" aria-labelledby="venteDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content bg-light">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="venteDetailModalLabel">Détails de la Vente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <h6><i class="fas fa-user text-danger"></i> Client : <span id="client-nom"></span></h6>
+          <p><i class="fas fa-phone"></i> <span id="client-telephone"></span></p>
+          <p><i class="fas fa-calendar-alt"></i> <span id="vente-date"></span></p>
+        </div>
+        <hr>
+        <h6>Produits</h6>
+        <table class="table table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Image</th>
+              <th>Produit</th>
+              <th>Quantité</th>
+              <th>Prix</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="vente-produits">
+            <!-- Rempli par JS -->
+          </tbody>
+        </table>
+        <hr>
+        <div class="text-end fw-bold">
+          Remise : <span id="vente-remise"></span> FCFA<br>
+          Total : <span id="vente-total"></span> FCFA
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.btn-detail-vente').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const venteId = this.dataset.id;
+
+        if (!venteId) {
+          alert("ID de vente introuvable.");
+          return;
+        }
+
+        fetch(`/accounts/details/${venteId}/`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Erreur lors du chargement des détails.");
+            }
+            return response.json();
+          })
+          .then(data => {
+            document.getElementById('client-nom').textContent = data.client.nom;
+            document.getElementById('client-telephone').textContent = data.client.telephone;
+            document.getElementById('vente-date').textContent = data.date;
+            document.getElementById('vente-remise').textContent = data.remise;
+            document.getElementById('vente-total').textContent = data.montant_total;
+
+            const tbody = document.getElementById('vente-produits');
+            tbody.innerHTML = '';
+
+            data.produits.forEach(produit => {
+              const row = `
+                <tr>
+                  <td><img src="${produit.image}" width="40" height="40" class="rounded" /></td>
+                  <td>${produit.nom}</td>
+                  <td>${produit.quantite}</td>
+                  <td>${produit.prix} FCFA</td>
+                  <td>${produit.total} FCFA</td>
+                </tr>`;
+              tbody.innerHTML += row;
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('venteDetailModal'));
+            modal.show();
+          })
+          .catch(error => {
+            alert("Erreur : " + error.message);
+          });
+      });
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+
+  ////====== BOUTTON DACTION
+  const actionBtn = document.getElementById('actionBtn');
+  const actionMenu = document.getElementById('actionMenu');
+
+  actionBtn.addEventListener('click', () => {
+    actionMenu.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!actionBtn.contains(event.target) && !actionMenu.contains(event.target)) {
+      actionMenu.classList.add('hidden');
+    }
+  });
+</script>
+
+<!-- JSON brut dans une balise <script> spéciale (non exécutée) -->
+<script type="application/json" id="donut-series">
+  {{ donut_series|safe }}
+</script>
+<script type="application/json" id="donut-labels">
+  {{ donut_labels|safe }}
+</script>
+<script type="application/json" id="donut-colors">
+  {{ donut_colors|safe }}
+</script>
+
+<!-- Script principal -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // On récupère le contenu JSON des balises précédentes
+    var seriesText = document.getElementById('donut-series').textContent;
+    var labelsText = document.getElementById('donut-labels').textContent;
+    var colorsText = document.getElementById('donut-colors').textContent;
+
+    // On parse les chaînes JSON en objets JS
+    var series = JSON.parse(seriesText);
+    var labels = JSON.parse(labelsText);
+    var colors = JSON.parse(colorsText);
+
+    var options = {
+      series: series,
+      labels: labels,
+      colors: colors,
+      chart: {
+        type: 'donut',
+        width: 230
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 300
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }]
+    };
+
+    var chart = new ApexCharts(document.querySelector("#donutChart"), options);
+    chart.render();
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/accounts/api/stats/")
+    .then(res => res.json())
+    .then(data => { 
+      // Total Ventes
+      document.getElementById("total-ventes").innerText =
+        data.total_ventes.toLocaleString() + " FCFA";
+
+      // Sparkline (ventes des 5 dernières semaines)
+      new ApexCharts(document.querySelector("#sparkline-ventes"), {
+        chart: { type: "area", height: 50, sparkline: { enabled: true } },
+        stroke: { curve: "smooth", width: 2 },
+        fill: { opacity: 0.3 },
+        series: [{
+          name: "Ventes Semaine",
+          data: data.ventes_sparkline
+        }],
+        colors: ['#e60000'],
+        tooltip: {
+          fixed: { enabled: false },
+          x: { show: false },
+          y: {
+            formatter: function (val) {
+              return val.toLocaleString() + " FCFA";
+            }
+          }
+        }
+      }).render();
+    })
+    .catch(err => console.error("Erreur chargement stats :", err));
+});
+</script>
+
+
+
+<script>
+  // Graphique en barres
+  fetch('/accounts/ventes-7-jours/')  //
+  .then(response => response.json())
+  .then(data => {
+    var optionsBar = {
+      chart: {
+        type: 'bar',
+        height: 300,
+        foreColor: '#fff',
+        toolbar: { show: false }
+      },
+      series: [{
+        name: 'Ventes',
+        data: data.data
+      }],
+      xaxis: {
+        categories: data.labels
+      },
+      colors: ['#e60000'],
+      plotOptions: {
+        bar: {
+          borderRadius: 10,
+          columnWidth: '45%',
+        }
+      }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#barChart2"), optionsBar);
+    chart.render();
+  });
+
+
+ 
+ 
+</script>
+
+<script src="{% static 'dashboard_admin.js' %}"></script>
+
+
+<script>
+  const chartColors = {
+    brut: '#e60000',     // Rouge
+    net: '#026bdb',    
+    ventes: '#ffffff'    // 
+  };
+
+  const optionsLine = {
+    chart: {
+      type: 'line',
+      height: 300,
+      foreColor: '#fff',
+      toolbar: { show: false },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 700,
+        animateGradually: {
+          enabled: true,
+          delay: 150
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 500
+        }
+      }
+    },
+    series: [
+      { name: "Revenu Brut", data: [], yAxisIndex: 0 },
+      { name: "Revenu Net", data: [], yAxisIndex: 0 },
+      { name: "Ventes", data: [], yAxisIndex: 1 }
+    ],
+    colors: [chartColors.brut, chartColors.net, chartColors.ventes],
+    stroke: {
+      curve: 'smooth',
+      width: 3
+    },
+    markers: {
+      size: 5,
+      strokeWidth: 2,
+      hover: { size: 7 }
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'center'
+    },
+    grid: {
+      borderColor: '#444',
+      row: {
+        colors: ['transparent'],
+        opacity: 0.1
+      }
+    },
+    xaxis: {
+      categories: []
+    },
+    tooltip: {
+      theme: 'dark',
+      x: {
+        format: 'dd/MM'
+      }
+    },
+    yaxis: [
+      {
+        seriesName: 'Revenu Brut',
+        title: {
+          text: 'Revenus (FCFA)',
+          style: { color: chartColors.brut }
+        },
+        labels: {
+          style: { colors: chartColors.brut }
+        },
+        min: 0,
+        max: 300000,
+        tickAmount: 6
+      },
+      {
+        seriesName: 'Revenu Net',
+        show: false
+      },
+      {
+        seriesName: 'Ventes',
+        opposite: true,
+        title: {
+          text: 'Nombre de ventes',
+          style: { color: chartColors.ventes }
+        },
+        labels: {
+          style: { colors: chartColors.ventes }
+        },
+        min: 0,
+        max: 260,
+        tickAmount: 6
+      }
+    ]
+  };
+
+  const lineChart = new ApexCharts(document.querySelector("#lineChart"), optionsLine);
+  lineChart.render();
+
+  function loadChartData(periode = 'semaine') {
+    fetch(`/accounts/api/revenus/?periode=${periode}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data); // Facultatif pour debug
+        lineChart.updateOptions({
+          xaxis: {
+            categories: data.labels
+          },
+          series: [
+            { name: "Revenu Brut", data: data.revenu_brut, yAxisIndex: 0 },
+            { name: "Revenu Net", data: data.revenu_net, yAxisIndex: 0 },
+            { name: "Ventes", data: data.ventes, yAxisIndex: 2 }
+          ]
+        });
+      });
+  }
+
+  loadChartData('semaine');
+
+  document.getElementById('periodeSelect').addEventListener('change', function () {
+    loadChartData(this.value);
+  });
+</script>
+
+
+
+
+
+
+<script>
+  var data = [{
+    x: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+    y: [12, 15, 13, 18, 22, 19, 17],  // Exemple : températures ou ventes
+    type: 'scatter', // 'bar' pour un histogramme
+    mode: 'lines+markers',
+    marker: { color: 'red' },
+    line: { shape: 'spline', color: 'black', width: 3 }
+  }];
+
+  var layout = {
+    title: 'Fréquence par jour',
+    xaxis: { title: 'Jour de la semaine' },
+    yaxis: { title: 'Valeur mesurée' }, // par exemple température ou nombre de ventes
+    plot_bgcolor: '#f4f4f4',
+    paper_bgcolor: '#fff'
+  };
+
+  Plotly.newPlot('graph-frequence', data, layout);
+</script>
+
+{% endblock %}

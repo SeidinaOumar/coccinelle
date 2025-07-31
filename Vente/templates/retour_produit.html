@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<title>Retour Produit - Coccinelle</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #F5F5F5F5;
+    color: #eee;
+    min-height: 100vh;
+  }
+  a, button {
+    cursor: pointer;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #000;
+    padding: 12px 24px;
+    border-bottom: 3px solid #e60000;
+  }
+  header .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #e60000;
+  }
+  header .logo img {
+    width: 36px;
+    height: 36px;
+  }
+  header .title {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: #fff;
+  }
+  header .btn-return {
+    background: #e60000;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+  }
+  header .btn-return:hover {
+    background: #bf0000;
+  }
+  header .profile {
+    color: #eee;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  header .profile img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #e60000;
+    object-fit: cover;
+  }
+  header .profile:hover {
+    text-decoration: underline;
+  }
+
+  /* Main container */
+  main {
+    max-width: 960px;
+    margin: 24px auto;
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 24px 32px;
+    box-shadow: 0 0 16px rgba(230,0,0,0.7);
+  }
+
+  /* Form section */
+  .facture-input {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .facture-input label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #e60000;
+    min-width: 140px;
+    align-self: center;
+  }
+  .facture-input input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 14px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 2px solid #e60000;
+    background: #121212;
+    color: #eee;
+    transition: border-color 0.3s ease;
+  }
+  .facture-input input[type="text"]:focus {
+    outline: none;
+    border-color: #ff1a1a;
+    box-shadow: 0 0 8px #ff1a1a;
+  }
+  .facture-input button {
+    background: #e60000;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+  .facture-input button:hover {
+    background: #bf0000;
+  }
+
+  /* Facture + client info */
+  .info-facture {
+    background: #2a2a2a;
+    padding: 18px 24px;
+    border-radius: 8px;
+    border: 2px solid #e60000;
+    margin-bottom: 32px;
+    color: #fff;
+    font-weight: 500;
+  }
+  .info-facture span {
+    display: inline-block;
+    margin-right: 24px;
+  }
+
+  /* Tableau produits */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 32px;
+    color: #eee;
+  }
+  thead {
+    background: #e60000;
+    color: #fff;
+  }
+  th, td {
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid #bf0000;
+    vertical-align: middle;
+  }
+  tbody tr:nth-child(odd) {
+    background: #232323;
+  }
+  tbody tr:nth-child(even) {
+    background: #1a1a1a;
+  }
+
+  /* Image produit */
+  .prod-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 0 4px #e60000;
+  }
+
+  /* Inputs qtés */
+  input.qty-return {
+    width: 60px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 2px solid #e60000;
+    background: #121212;
+    color: #eee;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+  }
+  input.qty-return:focus {
+    outline: none;
+    border-color: #ff1a1a;
+    box-shadow: 0 0 6px #ff1a1a;
+  }
+
+  /* Select motif */
+  select.motif-select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 2px solid #e60000;
+    background: #121212;
+    color: #eee;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  select.motif-select:focus {
+    outline: none;
+    border-color: #ff1a1a;
+    box-shadow: 0 0 6px #ff1a1a;
+  }
+
+  /* Résumé retour */
+  .resume-retour {
+    background: #2a2a2a;
+    border: 2px solid #e60000;
+    border-radius: 10px;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #eee;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .resume-retour textarea {
+    resize: vertical;
+    min-height: 50px;
+    max-width: 400px;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid #e60000;
+    background: #121212;
+    color: #eee;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
+  }
+  .resume-retour textarea:focus {
+    outline: none;
+    border-color: #ff1a1a;
+    box-shadow: 0 0 8px #ff1a1a;
+  }
+
+  /* Boutons */
+  .actions {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
+  .actions button {
+    padding: 14px 28px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .actions button.validate {
+    background: #e60000;
+  }
+  .actions button.validate:hover {
+    background: #bf0000;
+  }
+  .actions button.cancel {
+    background: #444;
+  }
+  .actions button.cancel:hover {
+    background: #666;
+  }
+
+  /* Messages */
+  #message {
+    margin-top: 20px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+    min-height: 24px;
+    border-radius: 6px;
+    padding: 12px;
+    display: none;
+  }
+  #message.error {
+    background: #b00000;
+    color: #ffdddd;
+    display: block;
+  }
+  #message.success {
+    background: #006400;
+    color: #ccffcc;
+    display: block;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    main {
+      padding: 16px 20px;
+      margin: 12px;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead tr {
+      display: none;
+    }
+    tbody tr {
+      margin-bottom: 20px;
+      border: 2px solid #e60000;
+      border-radius: 10px;
+      padding: 12px;
+      background: #232323;
+    }
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: none;
+      border-bottom: 1px solid #444;
+      font-size: 0.9rem;
+    }
+    tbody td:last-child {
+      border-bottom: 0;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      color: #e60000;
+    }
+    .resume-retour {
+      flex-direction: column;
+      gap: 16px;
+      font-size: 1rem;
+    }
+    .actions {
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+    }
+    .actions button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  
+  <div class="title">Retour Produit</div>
+  <button class="btn-return" onclick="history.back()">Retour</button>
+  
+</header>
+
+<main>
+
+  <!-- Code facture -->
+  <form id="facture-form" onsubmit="return false;">
+    <div class="facture-input">
+      <label for="code-facture">Code facture :</label>
+      <input type="text" id="code-facture" name="code_facture" placeholder="Ex: FACT123456" required />
+      <button type="submit" onclick="chargerFacture()">Charger</button>
+    </div>
+  </form>
+
+  <!-- Infos facture / client -->
+  <div id="infos-facture" class="info-facture" style="display:none;">
+    <span><strong>Facture n°:</strong> <span id="facture-num"></span></span>
+    <span><strong>Date / Heure :</strong> <span id="facture-date"></span></span>
+    <span><strong>Client :</strong> <span id="facture-client"></span></span> <br>
+    <strong>Contact:</strong> <span id="client-contact"></span>
+  </div>
+
+  <!-- Tableau produits -->
+  <table id="produits-table" style="display:none;">
+    <thead>
+      <tr>
+        <th>Produits</th>
+                <th>Qté achetée</th>
+        <th>Qté retournée</th>
+        <th>Qté à retourner</th>
+        <th>Motif</th>
+      </tr>
+    </thead>
+    <tbody id="produits-body">
+      <!-- lignes produits ajoutées dynamiquement -->
+    </tbody>
+  </table>
+
+  <div class="resume-retour" style="display:none;">
+    <label for="motif-global">Motif global (facultatif) :</label>
+    <textarea id="motif-global" placeholder="Motif général pour tous les produits"></textarea>
+  </div>
+
+  <div class="actions" style="display:none;">
+    <button class="cancel" onclick="resetForm()">Annuler</button>
+    <button class="validate" onclick="validerRetour()">Valider retour</button>
+  </div>
+
+  <div id="message"></div>
+
+
+
+</main>
+<script>
+    const csrfToken = '{{ csrf_token }}';
+</script>
+
+<script>
+const apiBase = '/vente/api';  // adapte selon ton url API
+
+function afficherMessage(msg, type='success') {
+  const messageEl = document.getElementById('message');
+  messageEl.textContent = msg;
+  messageEl.className = type;
+  messageEl.style.display = 'block';
+  setTimeout(() => {
+    messageEl.style.display = 'none';
+  }, 5000);
+}
+
+async function chargerFacture() {
+  const code = document.getElementById('code-facture').value.trim();
+  if (!code) return;
+
+  try {
+    const res = await fetch(`${apiBase}/factures/${code}/`);
+    if (!res.ok) throw new Error('Facture non trouvée.');
+    const data = await res.json();
+
+    // Affiche infos facture
+    document.getElementById('facture-num').textContent = data.numero;
+    document.getElementById('facture-date').textContent = data.date_emission;
+    document.getElementById('facture-client').textContent = data.client.nom 
+        document.getElementById('client-contact').textContent = data.client.contact
+
+    document.getElementById('infos-facture').style.display = 'block';
+
+    // Affiche tableau produits
+    const tbody = document.getElementById('produits-body');
+    tbody.innerHTML = ''; // reset
+
+    data.produits.forEach(p => {
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>
+          <img src="${p.image}" alt="${p.nom}" class="prod-img" />
+          <div>${p.nom}</div>
+        </td>
+        <td data-label="Qté achetée">${p.qte_achetee}</td>
+        <td data-label="Qté retournée">${p.qte_retournee || 0}</td>
+        <td data-label="Qté à retourner">
+          <input type="number" class="qty-return" min="0" max="${p.qte_achetee - (p.qte_retournee || 0)}" value="0" />
+        </td>
+        <td data-label="Motif">
+          <select class="motif-select">
+            <option value="">-- Sélectionner --</option>
+            <option value="Défectueux">Défectueux</option>
+            <option value="Non conforme">Non conforme</option>
+            <option value="Retour client">Retour client</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </td>
+      `;
+      // Stocke l'id produit dans un attribut data pour récupérer plus tard
+      tr.dataset.produitId = p.id;
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('produits-table').style.display = '';
+    document.querySelector('.resume-retour').style.display = '';
+    document.querySelector('.actions').style.display = '';
+
+  } catch (err) {
+    afficherMessage(err.message, 'error');
+    document.getElementById('infos-facture').style.display = 'none';
+    document.getElementById('produits-table').style.display = 'none';
+    document.querySelector('.resume-retour').style.display = 'none';
+    document.querySelector('.actions').style.display = 'none';
+  }
+}
+
+function resetForm() {
+  document.getElementById('facture-form').reset();
+  document.getElementById('infos-facture').style.display = 'none';
+  document.getElementById('produits-table').style.display = 'none';
+  document.querySelector('.resume-retour').style.display = 'none';
+  document.querySelector('.actions').style.display = 'none';
+  document.getElementById('message').style.display = 'none';
+}
+
+async function validerRetour() {
+  const codeFacture = document.getElementById('code-facture').value.trim();
+  if (!codeFacture) {
+    afficherMessage('Veuillez entrer un code facture.', 'error');
+    return;
+  }
+
+  const tbody = document.getElementById('produits-body');
+  const lignes = tbody.querySelectorAll('tr');
+
+  const produits = [];
+  lignes.forEach(tr => {
+    const qteInput = tr.querySelector('input.qty-return');
+    const motifSelect = tr.querySelector('select.motif-select');
+    const qteARetourner = parseInt(qteInput.value, 10) || 0;
+    if (qteARetourner > 0) {
+      produits.push({
+        id: tr.dataset.produitId,
+        qte_a_retourner: qteARetourner,
+        motif: motifSelect.value || ''
+      });
+    }
+  });
+
+  if (produits.length === 0) {
+    afficherMessage('Veuillez saisir au moins une quantité à retourner.', 'error');
+    return;
+  }
+
+  const motifGlobal = document.getElementById('motif-global').value.trim();
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  try {
+    const res = await fetch(`${apiBase}/retour-valider/`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+      body: JSON.stringify({
+        code_facture: codeFacture,
+        produits: produits,
+        motif_global: motifGlobal
+      })
+    });
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || 'Erreur lors de la validation du retour.');
+    }
+
+    afficherMessage(result.message, 'success');
+    resetForm();
+
+  } catch (err) {
+    afficherMessage(err.message, 'error');
+  }
+}
+</script>

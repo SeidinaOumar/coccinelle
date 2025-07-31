@@ -1,0 +1,28 @@
+/* Bordure en tirets rouge */
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* Table stylée */
+table.table th, table.table td {
+  vertical-align: middle !important;
+}
+.popup-confirmation {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-box {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px #000;
+  min-width: 300px;
+}

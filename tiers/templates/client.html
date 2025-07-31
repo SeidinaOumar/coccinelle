@@ -1,0 +1,225 @@
+{% extends 'core/templates/nav0.html' %}
+{% load static %}
+
+
+
+ {% block title %}   <title>Clients</title> {% endblock%}
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+ <style>
+    body {
+      background-color: #dadbe4f1;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .action-card {
+      border-radius: 1rem;
+      transition: all 0.3s ease-in-out;
+      background-color: white;
+      align-content: center;
+    }.action-card i{
+      text-align: center;
+  background: #080808;
+  border-radius: 50%;
+  padding: 10px;
+  margin-right: 112px;
+  color: #e60000;
+  min-width: 20px;
+  margin-left: 112px;
+    }
+    .action-card:hover {
+      background-color: #f8f9fa;
+      transform: translateY(-5px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+    .card-header.bg-danger {
+      background: linear-gradient(135deg, #c82333, #dc3545);
+    }
+    .card h5, .action-card h5 {
+      font-weight: 600;
+    }
+    .page-title {
+      color: #080808;
+      font-weight: bold;
+      font-size: 28px;
+    } .page-title i {
+       text-align: center;
+    background: #080808;
+    border-radius: 50%;
+     padding: 10px;
+    margin-right: 15px;
+    color: #e60000;
+        min-width: 20px;
+        
+
+
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title"><i class="fas fa-users me-2"></i>Gestion des Clients</h2>
+    <div>
+      <a href="#" class="btn btn-danger me-2">
+        <i class="fas fa-user-plus"></i> Ajouter Client
+      </a>
+      <a href="{%url 'client_list' %}" class="btn btn-dark">
+        <i class="fas fa-list"></i> Voir tous les clients
+      </a>
+    </div>
+  </div>
+
+  <!-- Cartes d'action -->
+  <div class="row mb-3">
+    <div class="col-md-4 mb-3" >
+      <a href="#" class="card action-card shadow-sm p-4 text-center text-decoration-none text-dark">
+        <i class="fas fa-user-plus fa-2x  mb-2"></i>
+        <h5>Ajouter un client</h5>
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="#" class="card action-card shadow-sm p-4 text-center text-decoration-none text-dark">
+        <i class="fas fa-bullhorn fa-2x  mb-2"></i>
+        <h5>Lancer une publicité</h5>
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="#" class="card action-card shadow-sm p-4 text-center text-decoration-none text-dark">
+        <i class="fas fa-gift fa-2x  mb-2"></i>
+        <h5>Récompense fidélité</h5>
+      </a>
+    </div>
+  </div>
+
+  <!-- Graphique -->
+  <div class="card shadow-sm mb-5">
+    
+    <div class="card-body  text-white">
+      <div id="topClientsApexChart"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Script du graphique -->
+<!-- Assure-toi d’avoir un conteneur avec cet ID -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+  fetch('/tiers/api/top-clients/')
+    .then(response => response.json())
+    .then(data => {
+      const options = {
+        chart: {
+          type: 'bar',
+          height: 400,
+          background: '#fff', // fond noir
+          foreColor: '#000',
+          toolbar: { show: false }
+        },
+        series: [
+          {
+            name: "Montant Total (FCFA)",
+            data: data.montants
+          },
+          {
+            name: "Nombre de Passages",
+            data: data.passages
+          }
+        ],
+        xaxis: {
+          categories: data.labels,
+          title: {
+            text: 'Clients',
+            style: { color: '#000' }
+          },
+          labels: {
+            style: { colors: '#ccc', fontSize: '12px' }
+          }
+        },
+        yaxis: [
+          {
+            title: {
+              text: 'Montant Total (FCFA)',
+              style: { color: '#e60000' }
+            },
+            labels: {
+              style: { colors: '#e60000', fontSize: '12px' }
+            }
+          },
+          {
+            opposite: true,
+            title: {
+              text: 'Nombre de Passages',
+              style: { color: '#007bff' }
+            },
+            labels: {
+              style: { colors: '#007bff', fontSize: '12px' }
+            }
+          }
+        ],
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '20%',   // Barres fines
+            borderRadius: 8,     // Coins arrondis
+            borderRadiusApplication: 'around',
+            dataLabels: {
+              position: 'top'
+            }
+          }
+        },
+        stroke: {
+          show: true,
+          width: 10,                // ✅ Séparation entre les barres
+          colors: ['transparent']
+        },
+        colors: ['#e60000', '#007bff'],
+        legend: {
+          position: 'top',
+          labels: {
+            colors: '#000',
+            useSeriesColors: false
+          }
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          theme: 'dark'
+        },
+        title: {
+          text: 'Top 10 Clients du Mois - Montant & Fréquence',
+          align: 'center',
+          style: {
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#000'
+          }
+        },
+        grid: {
+          borderColor: '#333',
+          strokeDashArray: 4,
+          row: {
+            colors: ['transparent'],
+            opacity: 0.1
+          }
+        }
+      };
+
+      const chart = new ApexCharts(document.querySelector("#topClientsApexChart"), options);
+      chart.render();
+    });
+</script>
+
+
+
+{% endblock %}

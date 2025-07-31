@@ -1,0 +1,66 @@
+body.profil-body {
+  background-color: #1a1a1a;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.profil-card {
+  background: #2a2a2a;
+  border: 2px solid #dc3545;
+  color: white;
+}
+
+.profil-image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profil-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 4px solid #dc3545;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+.btn-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: 2px solid white;
+}
+
+.btn-edit-icon:hover {
+  background-color: #b02a37;
+}
+
+.list-group-item {
+  background-color: transparent;
+  color: white;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-rouge {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn-rouge:hover {
+  background-color: #b02a37;
+}
+
+.btn-noir {
+  background-color: black;
+  color: white;
+  border: none;
+}
+
+.btn-noir:hover {
+  background-color: #333;
+}

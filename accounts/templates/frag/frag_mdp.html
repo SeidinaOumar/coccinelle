@@ -1,0 +1,5 @@
+{% load static %}
+<form method="post" id="passwordChangeForm">
+  {% csrf_token %}
+  {{ form.as_p }}
+</form>

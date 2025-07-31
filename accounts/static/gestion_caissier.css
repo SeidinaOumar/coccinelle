@@ -1,0 +1,50 @@
+/* gestion_caissier.css */
+
+/* Titres et espacements */
+.cocci-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #dc3545;
+    width: 300%;
+}
+
+/* Avatar */
+
+    .caissier-profile {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.caissier-profile-img:hover {
+    transform: scale(1.1);
+}
+
+
+.caissier-profile:hover {
+    transform: scale(1.1);
+}
+
+/* Modal */
+#caissierModal .modal-content {
+    border-radius: 12px;
+    
+}
+#caissierModal .modal-header {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}#salesChart{
+    padding-bottom: 10px;
+}.btn-outline-warning.rounded-circle {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+

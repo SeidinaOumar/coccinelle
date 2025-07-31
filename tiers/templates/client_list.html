@@ -1,0 +1,277 @@
+{% extends 'core/templates/nav0.html' %}
+{% load static %}
+
+
+
+ {% block title %}   <title>Clients</title> {% endblock%}
+{% block extra_css %}
+<!-- Font Awesome pour les icônes -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'client_list.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<!-- Bootstrap JS (juste avant </body>) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="clients-section">
+
+    
+
+    <!-- En-tête + bouton -->
+    <div class="section-header">
+        <h2> Liste des Clients</h2>
+        <a class="btn-add-client" href="{% url 'add_client' %}"
+         data-bs-toggle="modal" data-bs-target="#addClientModal">
+            <i class="fas fa-user-plus"></i> Ajouter un client
+        </a>
+    </div>
+
+    <!-- Tableau des clients -->
+   <div class="card shadow mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between bg-dark text-white py-3 px-4 rounded-top">
+    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Liste des Clients</h5>
+  </div>
+  <div class="table-responsive p-3 bg-light rounded-bottom">
+    <table class="table table-hover table-borderless align-middle modern-client-table">
+      <thead class="table-dark">
+        <tr>
+          <th>Nom</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Adresse</th>
+          <th>Points</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in clients %}
+        <tr>
+          <td>{{ client.nom_client }}</td>
+          <td>{{ client.contact }}</td>
+          <td>{{ client.email }}</td>
+          <td>{{ client.adresse }}</td>
+          <td>{{ client.pont }}</td>
+          <td class="text-center">
+            {% if request.user.role == 'admin' %}
+            <button class="btn btn-sm btn-outline-danger rounded-circle me-1" title="Modifier"
+              data-id="{{ client.id }}"
+              data-nom="{{ client.nom_client|escapejs }}"
+              data-contact="{{ client.contact|escapejs }}"
+              data-email="{{ client.email|escapejs }}"
+              data-adresse="{{ client.adresse|escapejs }}"
+              data-point="{{ client.point|escapejs }}"
+              onclick="editClient(this)"
+              data-bs-toggle="modal" data-bs-target="#editClientModal">
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+
+            {% url 'delete_client' client.pk as delete_url %}
+            <a href="#" class="btn btn-sm btn-outline-danger rounded-circle me-1" title="Supprimer"
+              onclick="openDeletePopup('{{ delete_url }}','{{ client.pk }}','{{ client.nom_client }}')">
+              <i class="fas fa-trash"></i>
+            </a>
+            {% endif %}
+
+            <a href="{% url 'historique_achats_client' client.pk %}"
+              class="btn btn-sm btn-outline-danger rounded-circle" title="Historique">
+              <i class="fas fa-history"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted">Aucun client trouvé !</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+  
+</div>
+<!-- Modal Ajout Client -->
+<!-- Modal Ajout Client -->
+<div class="modal fade" id="addClientModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg" style="background-color: #fff;">
+      <form method="POST" class="p-4">
+        {% csrf_token %}
+        <div class="mb-4 text-center">
+          <h5 class="fw-bold text-danger"><i class="bi bi-person-plus-fill me-2"></i> Ajouter un client</h5>
+          <small class="text-muted">Veuillez remplir les informations du client</small>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="nomClient" class="form-label">
+              <i class="bi bi-person-fill text-danger me-2"></i> Nom
+            </label>
+            <input type="text" name="nom" id="nomClient" class="form-control" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="telClient" class="form-label">
+              <i class="bi bi-telephone-fill text-danger me-2"></i> Téléphone
+            </label>
+            <input type="text" name="telephone" id="telClient" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="emailClient" class="form-label">
+              <i class="bi bi-envelope-fill text-danger me-2"></i> Email
+            </label>
+            <input type="email" name="email" id="emailClient" class="form-control">
+          </div>
+
+          <div class="col-md-12">
+            <label for="adresseClient" class="form-label">
+              <i class="bi bi-geo-alt-fill text-danger me-2"></i> Adresse
+            </label>
+            <textarea name="adresse" id="adresseClient" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> Annuler
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-check-circle me-1"></i> Ajouter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Modifier Client -->
+<div class="modal fade" id="editClientModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg" style="background-color: #fff;">
+      <form method="POST" id="editClientForm" class="p-4">
+        {% csrf_token %}
+        <input type="hidden" name="id" id="editClientId">
+        <div class="mb-4 text-center">
+          <h5 class="fw-bold text-primary"><i class="bi bi-pencil-fill me-2"></i> Modifier le client</h5>
+          <small class="text-muted">Modifiez les informations du client</small>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="editNomClient" class="form-label">
+              <i class="bi bi-person-fill text-danger me-2"></i> Nom
+            </label>
+            <input type="text" name="nom" id="editNomClient" class="form-control" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="editPointClient" class="form-label">
+              <i class="bi bi-person-bounding-box text-danger me-2"></i> Point Fidelité
+            </label>
+            <input type="text" name="point" id="editPointClient" class="form-control">
+          </div>
+          
+
+          <div class="col-md-6">
+            <label for="editTelClient" class="form-label">
+              <i class="bi bi-telephone-fill text-danger me-2"></i> Téléphone
+            </label>
+            <input type="text" name="telephone" id="editTelClient" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="editEmailClient" class="form-label">
+              <i class="bi bi-envelope-fill text-danger me-2"></i> Email
+            </label>
+            <input type="email" name="email" id="editEmailClient" class="form-control">
+          </div>
+
+          <div class="col-md-12">
+            <label for="editAdresseClient" class="form-label">
+              <i class="bi bi-geo-alt-fill text-danger me-2"></i> Adresse
+            </label>
+            <textarea name="adresse" id="editAdresseClient" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> Annuler
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i> Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function editClient(button) {
+  document.getElementById('editClientId').value = button.dataset.id;
+  document.getElementById('editNomClient').value = button.dataset.nom_client;
+  document.getElementById('editTelClient').value = button.dataset.contact;
+  document.getElementById('editEmailClient').value = button.dataset.email;
+  document.getElementById('editAdresseClient').value = button.dataset.adresse;
+  document.getElementById('editPointClient').value = button.dataset.point
+}
+
+</script>
+
+    <div id="popup-confirm" class="popup-confirmation">
+  <div class="popup-box">
+    <p id="popup-message">Confirmer la suppression ?</p>
+    <form method="post" id="popup-delete-form">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Oui</button>
+      <button type="button" class="btn btn-secondary" onclick="closePopup()">Non</button>
+    </form>
+  </div>
+  </div>
+  <script>
+    function openDeletePopup(url,produitId, nomProduit) {
+    const popup = document.getElementById('popup-confirm');
+    const form = document.getElementById('popup-delete-form');
+    const message = document.getElementById('popup-message');
+
+    message.textContent = `Voulez-vous vraiment supprimer "${nomProduit}" ?`;
+    form.action = url;
+
+    popup.style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('popup-confirm').style.display = 'none';
+  }
+  </script>
+  {% if messages %}
+  <div id="custom-alert-wrapper" class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100" style="z-index: 1055;">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center shadow-lg rounded-3" style="background-color: rgb(235, 234, 234); min-width: 350px; max-width: 500px; padding: 20px;">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    // Disparition automatique après 5s
+    setTimeout(function () {
+      const alertWrapper = document.getElementById('custom-alert-wrapper');
+      if (alertWrapper) {
+        alertWrapper.style.opacity = '0';
+        alertWrapper.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          alertWrapper.remove();
+        }, 500);
+      }
+    }, 5000);
+  </script>
+{% endif %}
+<link rel="stylesheet" href="{% static 'client_list.css' %}">
+{% endblock %}

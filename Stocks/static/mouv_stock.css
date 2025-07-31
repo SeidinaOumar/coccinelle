@@ -1,0 +1,28 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.custom-table {
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(200, 200, 200, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8d7da3d;
+}
+
+thead th {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+img {
+    object-fit: cover;
+    border: 2px solid #ddd;
+}

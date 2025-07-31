@@ -1,0 +1,311 @@
+{% extends 'core/templates/nav0.html' %}
+{% load static %}
+ {% block title %}   <title>Fournisseurs</title> {% endblock%}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'frs_list.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap JS Bundle (inclut Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- CARTES -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-danger shadow rounded-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Total Fournisseurs</h5>
+                        <h3 class="fw-bold">{{ frs|length }}</h3>
+                    </div>
+                    <i class="bi bi-person-lines-fill fs-1"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-dark shadow rounded-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Types Fournisseurs</h5>
+                        <h3 class="fw-bold">{{ frs|dictsort:"type_frs"|length }}</h3>
+                    </div>
+                    <i class="bi bi-tags fs-1"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-secondary shadow rounded-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Pays Différents</h5>
+                        <h3 class="fw-bold">
+                            {{ frs|dictsort:"pays"|unordered_list|length }}
+                        </h3>
+                    </div>
+                    <i class="bi bi-globe2 fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="text-danger fw-bold"><i class="bi bi-truck me-2"></i>Liste des Fournisseurs</h2>
+  <a href="{% url 'add_frs' %}" class="btn btn-dark rounded-pill" data-bs-toggle="modal" data-bs-target="#addFrsModal">
+    <i class="bi bi-plus-circle me-1"></i> Ajouter un fournisseur
+  </a>
+</div>
+
+<!-- Barre de recherche -->
+<div class="mb-4">
+  <input type="text" id="searchInput" class="form-control border-0 shadow-sm px-4 py-2 rounded-pill" placeholder="🔍 Rechercher un fournisseur...">
+</div>
+
+<!-- Conteneur de cartes -->
+<div id="fournisseurGrid" class="fournisseur-grid">
+  {% for fr in frs %}
+  <div class="fournisseur-card" data-nom="{{ fr.nom_frs|lower }}">
+    <div class="fournisseur-image">
+      <i class="bi bi-person-fill fs-3 text-white"></i>
+    </div>
+    <div class="fournisseur-info">
+      <h6 class="fw-bold mb-1 text-truncate">{{ fr.nom_frs }}</h6>
+      <p class="text-muted small mb-0">{{ fr.contact }}</p>
+      <p class="text-muted small mb-0">{{ fr.email }}</p>
+      <p class="text-muted small mb-0">{{ fr.adresse }}</p>
+      <p class="text-muted small mb-1">{{ fr.pays }}</p>
+      <span class="badge bg-dark">{{ fr.type_frs }}</span>
+    </div>
+    <div class="fournisseur-actions d-flex flex-column justify-content-center gap-1">
+      <button class="btn btn-sm btn-outline-primary rounded-circle"
+        title="Modifier"
+        data-id="{{ fr.id }}"
+        data-nom="{{ fr.nom_frs|escapejs }}"
+        data-contact="{{ fr.contact|escapejs }}"
+        data-email="{{ fr.email|escapejs }}"
+        data-adresse="{{ fr.adresse|escapejs }}"
+        data-pays="{{ fr.pays|escapejs }}"
+        data-type="{{ fr.type_frs|escapejs }}"
+        onclick="editFournisseurFromData(this)"
+        data-bs-toggle="modal" data-bs-target="#editFrsModal">
+        <i class="bi bi-pencil-fill"></i>
+      </button>
+
+      {% url 'delete_frs' fr.pk as delete_url %}
+      <a href="#" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer"
+        onclick="openDeletePopup('{{ delete_url }}','{{ fr.pk }}','{{ fr.nom_frs }}')">
+        <i class="fas fa-trash"></i>
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <p class="text-muted">Aucun fournisseur trouvé.</p>
+  {% endfor %}
+</div>
+
+
+</div>
+<!-- Modal AJOUTER   Fournisseurs -->
+<div class="modal fade" id="addFrsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg" style="background-color: #fff;">
+      <form method="POST" action="{% url 'add_frs' %}" class="p-4">
+        {% csrf_token %}
+        <div class="mb-4 text-center">
+          <h5 class="fw-bold text-danger"><i class="bi bi-person-plus-fill me-2"></i> Ajouter un fournisseur</h5>
+          <small class="text-muted">Remplissez les champs requis pour ajouter un fournisseur</small>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="nomFrs" class="form-label">
+              <i class="bi bi-person-fill text-danger me-2"></i> Nom
+            </label>
+            <input type="text" name="nom_frs" id="nomFrs" class="form-control" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="contactFrs" class="form-label">
+              <i class="bi bi-telephone-fill text-danger me-2"></i> Contact
+            </label>
+            <input type="text" name="contact" id="contactFrs" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="emailFrs" class="form-label">
+              <i class="bi bi-envelope-fill text-danger me-2"></i> Email
+            </label>
+            <input type="email" name="email" id="emailFrs" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="paysFrs" class="form-label">
+              <i class="bi bi-globe text-danger me-2"></i> Pays
+            </label>
+            <input type="text" name="pays" id="paysFrs" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="typeFrs" class="form-label">
+              <i class="bi bi-tag-fill text-danger me-2"></i> Type de fournisseur
+            </label>
+            <input type="text" name="type_frs" id="typeFrs" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label for="adresseFrs" class="form-label">
+              <i class="bi bi-geo-alt-fill text-danger me-2"></i> Adresse
+            </label>
+            <textarea name="adresse" id="adresseFrs" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> Annuler
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-check-circle me-1"></i> Ajouter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Éditer Fournisseurs -->
+<div class="modal fade" id="editFrsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color: #fdfdfd;">
+      <form method="POST" id="editFrsForm">
+  {% csrf_token %}
+  <input type="hidden" name="id" id="editFrsId">
+  <div class="mb-3">
+    <label for="editNomFrs" class="form-label">Nom fournisseur</label>
+    <input type="text" name="nom_frs" id="editNomFrs" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="editContact" class="form-label">Contact</label>
+    <input type="text" name="contact" id="editContact" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="editEmail" class="form-label">Email</label>
+    <input type="email" name="email" id="editEmail" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="editAdresse" class="form-label">Adresse</label>
+    <textarea name="adresse" id="editAdresse" class="form-control" rows="2"></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="editPays" class="form-label">Pays</label>
+    <input type="text" name="pays" id="editPays" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="editType" class="form-label">Type</label>
+    <input type="text" name="type_frs" id="editType" class="form-control">
+  </div>
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+    <button type="submit" class="btn btn-success">Enregistrer</button>
+  </div>
+</form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function editFournisseurFromData(button) {
+  document.getElementById("editFrsId").value = button.dataset.id;
+  document.getElementById("editNomFrs").value = button.dataset.nom;
+  document.getElementById("editContact").value = button.dataset.contact;
+  document.getElementById("editEmail").value = button.dataset.email;
+  document.getElementById("editAdresse").value = button.dataset.adresse;
+  document.getElementById("editPays").value = button.dataset.pays;
+  document.getElementById("editType").value = button.dataset.type;
+}
+
+</script>
+
+
+  <script src="{% static 'frs_list.js' %}"></script>
+<script>
+  const searchInput = document.getElementById('searchInput');
+  const cards = document.querySelectorAll('.fournisseur-card');
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase();
+    cards.forEach(card => {
+      const nom = card.dataset.nom;
+      card.style.display = nom.includes(query) ? 'flex' : 'none';
+    });
+  });
+</script>
+
+
+<!-- Modal Confirmation Suppression -->
+<div class="modal fade" id="deleteCategorieModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color: #fff;">
+      <form id="deleteCategorieForm" method="POST">
+        {% csrf_token %}
+        <div class="text-center">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+          <h5 class="mt-3 mb-2 text-danger fw-bold">Confirmer la suppression</h5>
+          <p class="text-muted mb-4">Voulez-vous vraiment supprimer la catégorie <span id="categorieName" class="fw-bold text-dark"></span> ?</p>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-danger">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function openDeletePopup(deleteUrl, categorieId, categorieNom) {
+    const form = document.getElementById('deleteCategorieForm');
+    form.action = deleteUrl;
+
+    document.getElementById('categorieName').textContent = categorieNom;
+
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteCategorieModal'));
+    deleteModal.show();
+  }
+</script>
+{% if messages %}
+  <div id="custom-alert-wrapper" class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100" style="z-index: 1055;">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center shadow-lg rounded-3" style="background-color: rgb(235, 234, 234); min-width: 350px; max-width: 500px; padding: 20px;">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    // Disparition automatique après 5s
+    setTimeout(function () {
+      const alertWrapper = document.getElementById('custom-alert-wrapper');
+      if (alertWrapper) {
+        alertWrapper.style.opacity = '0';
+        alertWrapper.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          alertWrapper.remove();
+        }, 500);
+      }
+    }, 5000);
+  </script>
+{% endif %}
+
+{% endblock %}
+
+ 
+   
+
+
+    

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>coccinelle system</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background-color:black;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      color: white;
+    }
+
+    .container-fluid {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .logo {
+      width: 245px;
+  height: 245px;
+  margin-right: 40px;
+  transform: translateX(-300px) rotate(0deg);
+  opacity: 0;
+  animation: rollIn 2s ease-out forwards;
+  
+
+  border-radius: 145px;
+}
+    
+
+    .text-group {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .main-title {
+      font-size: 6rem;
+      color: #e60000;
+      font-weight: bold;
+      opacity: 0;
+      animation: fadeIn 1s ease 2s forwards;
+    }
+
+    .sub-title {
+      font-size: 2rem;
+      color: #ccc;
+      margin-top: -1.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease 2.3s forwards;
+      margin-bottom: -30px;
+    }
+
+    .start-button {
+      position: absolute;
+      bottom: 60px;
+      right:    50px;
+      background-color: hsl(0, 100%, 56%);
+      border: none;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      border-radius: 30px;
+      color: rgb(255, 255, 255);
+      opacity: 0;
+      animation: fadeIn 1s ease 2.6s forwards;
+    }
+
+    .start-button:hover {
+      background-color: #cc0000;
+    }
+
+    .info-button {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      color: white;
+      background: transparent;
+      font-weight: bold;
+      text-align: center;
+      line-height: 35px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    @keyframes rollIn {
+      0% {
+        transform: translateX(-300px) rotate(0deg);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0) rotate(720deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+
+      .sub-title {
+        font-size: 1.2rem;
+      }
+
+      .logo {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container-fluid">
+    <img src=" static/img/logo_cocci.png" alt="Logo" class="logo" />
+    <div class="text-group">
+      
+      <div class="sub-title">System</div>
+      <div class="main-title">coccinelle</div>
+    </div>
+
+    <a href="{% url 'login' %}"><button class="start-button">Start</button></a>
+    <button class="info-button">i</button>
+  </div>
+
+</body>
+</html>

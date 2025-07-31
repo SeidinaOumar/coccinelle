@@ -1,0 +1,86 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approvisionnement</title>
+    <link rel="stylesheet" href="{% static 'approv.css' %}">
+
+</head>
+<body>
+   <div class="approv-container">
+    <h2>Formulaire d'approvisionnement Manuelle</h2>
+
+    <form method="post" class="approv-form">
+        {% csrf_token %}
+        
+        <!-- Barre de recherche Produits -->
+        <label for="{{ form.prix.id_for_label}}">Produit :</label>
+        {{ form.produit}}
+
+        <!-- Barre de recherche Fournisseur -->
+        <label for="{{form.fournisseur.id_for_label}}">Fournisseur :</label>
+        {{ form.fournisseur}}
+         <label for="id_date_expiration" class="form-label fw-semibold text-danger">Date d’expiration</label>
+         {{ form.date_expiration }}
+
+        <!-- Autres champs -->
+        <label for="quantite">Quantité :</label>
+        {{ form.quantite}}
+       
+        <label for="prix">Prix unitaire :</label>
+        {{form.prix}}
+
+        <button type="submit" class="btn-submit">Valider</button>
+
+        {% if success %}
+            <p class="success-message">Approvisionnement réussi !</p>
+        {% endif %}
+    </form>
+
+    <!-- Tableau d'approvisionnement -->
+    <div class="table-container">
+        <h3>Historique des approvisionnements</h3>
+
+        <!-- Filtre -->
+        <input type="text" id="searchTable" class="table-filter" placeholder="Filtrer...">
+
+        <table class="approv-table">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Référence</th>
+                    <th>Fournisseur</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for ligne in approvisionnements %}
+                    <tr>
+                        <td>{{ ligne.id_produit.nom_produit }}</td>
+                        <td>{{ ligne.id_produit.reference }}</td>
+                        <td>{{ ligne.id_appro.id_frs.nom_frs }}</td>
+                        <td>{{ ligne.quantite }}</td>
+                        <td>{{ ligne.prix_unitaire }}</td>
+                        <td>{{ ligne.id_appro.date|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="{% static 'approv.js' %}"></script>
+ 
+</body>
+</html>
+
+
+    
+    
+
+

@@ -1,0 +1,61 @@
+/* dashboard_caissier.css */
+
+/* Cartes d'action principales */
+.card-action {
+    background-color: #1a1a1a;
+    border: none;
+    border-radius: 15px;
+    color: #e60000;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.card-action:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 12px rgba(230, 0, 0, 0.7);
+}
+.card-action i {
+    font-size: 2.2rem;
+    color: #e60000;
+}
+.card-action h5 {
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+/* Carte graphique (ventes) */
+.chart-card {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Carte statistique */
+.stat-card {
+    background-color: #fff;
+    border-left: 5px solid #e60000;
+    border-radius: 10px;
+    padding: 1.2rem;
+    color: #333;
+}
+.stat-card h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+.stat-card h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}.a{
+    text-decoration: none;
+}
+
+/* Responsive padding pour petits écrans */
+@media (max-width: 576px) {
+    .card-action {
+        padding: 1.5rem 1rem;
+    }
+    .stat-card, .chart-card {
+        padding: 1rem;
+    }
+}

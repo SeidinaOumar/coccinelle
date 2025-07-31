@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mouvements de Stock | La Coccinelle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'mouv_stock.css' %}">
+    <!-- Font Awesome CDN -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-KN1F+Fq13PbE8FZImBDsEZ4Ry3MQx7Vxq+uHZY6fN4jM4I1hx9H1RdrEKYfBFPOEXVJxasN2NBSsHxMRzD3Myw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-light">
+
+
+<div class="container py-4">
+    <!-- Titre -->
+    <div class="d-flex align-items-center mb-4">
+        <i class="fas fa-dolly-flatbed fa-2x text-danger me-4"></i>
+        <h2 class="text-danger fw-bold mb-0">Derniers Mouvements de Stock</h2>
+        <!-- Filtre par date -->
+<div class="d-flex justify-content-end align-items-center mb-2 gap-2" style="margin-left: 100px;">
+    <label for="filterDate" class="form-label mb-0 fw-bold text-secondary"><i class="fas fa-calendar-day"></i> Filtrer par date :</label>
+    <input type="date" id="filterDate" class="form-control form-control-sm" style="max-width: 200px;">
+    <button id="btnFiltrer" class="btn btn-danger btn-sm"><i class="fas fa-filter"></i> Filtrer</button>
+    <button id="btnReset" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></button>
+</div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="table-responsive rounded-4 shadow p-3 custom-table" style="max-height: 450px; overflow-y: auto;">
+        <table class="table table-hover align-middle text-center mb-0">
+            <thead class="text-uppercase bg-danger text-white">
+                <tr>
+                    <th><i class="fas fa-image"></i> Image</th>
+                    <th><i class="fas fa-box-open"></i> Produit</th>
+                    <th><i class="fas fa-random"></i> Type</th>
+                    <th><i class="fas fa-sort-numeric-up"></i> Quantité</th>
+                    <th><i class="fas fa-user-circle"></i> Utilisateur</th>
+                    <th><i class="fas fa-calendar-alt"></i> Date</th>
+                </tr>
+            </thead>
+            <tbody id="mouvementsBody" class="table-group-divider bg-white">
+                <!-- Données JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bouton retour -->
+    <div class="text-center mt-4">
+        <a href="{% url 'stock' %}" class="btn btn-outline-danger rounded-pill px-4">
+            <i class="fas fa-arrow-left"></i> Retour au Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Script JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let allMouvements = [];
+
+    const mouvementsBody = document.getElementById("mouvementsBody");
+    const filterDate = document.getElementById("filterDate");
+    const btnFiltrer = document.getElementById("btnFiltrer");
+    const btnReset = document.getElementById("btnReset");
+
+    function renderRows(data) {
+        mouvementsBody.innerHTML = "";
+        if (data.length === 0) {
+            mouvementsBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Aucun mouvement trouvé</td></tr>`;
+            return;
+        }
+        data.forEach(mvt => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><img src="${mvt.produit__image || '/static/images/placeholder.png'}" class="rounded-circle shadow-sm" width="45" height="45"></td>
+                <td class="fw-semibold">${mvt.produit__nom_produit}</td>
+                <td><span class="badge ${mvt.type_mouvement === 'Entrée' ? 'bg-success' : 'bg-warning text-dark'?'bg-danger':'bg-warning'}">${mvt.type_mouvement}</span></td>
+                <td>${mvt.quantite}</td>
+                <td class="">
+                {% if mvt.id_utilisateur.photo %}
+                <img src="{{ mvt.id_utilisateur.photo.url }}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+                {% else %}
+                <img src="{% static 'img/default-avatar.png' %}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+                {% endif %}
+                ${mvt.utilisateur__username}
+                </td>
+                
+                <td><i class="far fa-clock text-muted me-1"></i> ${new Date(mvt.date_mouvement).toLocaleDateString()}</td>
+            `;
+            mouvementsBody.appendChild(row);
+        });
+    }
+
+    fetch("/stock/mouvements-stock/")
+        .then(response => response.json())
+        .then(data => {
+            allMouvements = data;
+            renderRows(allMouvements);
+        });
+
+    btnFiltrer.addEventListener("click", () => {
+        const selectedDate = filterDate.value;
+        if (!selectedDate) return;
+
+        const filtered = allMouvements.filter(mvt => {
+            const date = new Date(mvt.date_mouvement).toISOString().split("T")[0];
+            return date === selectedDate;
+        });
+
+        renderRows(filtered);
+    });
+
+    btnReset.addEventListener("click", () => {
+        filterDate.value = "";
+        renderRows(allMouvements);
+    });
+});
+
+</script>
+</body>
+</html>

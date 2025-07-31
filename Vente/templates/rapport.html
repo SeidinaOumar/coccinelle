@@ -1,0 +1,286 @@
+
+ {% extends 'core/templates/nav0.html' %}
+{% load static %}
+
+
+ {% block title %}   <title> Rapports des Ventes</title> {% endblock%}
+{% block extra_css%}
+<link rel="stylesheet" href="{% static 'rapport.css' %}">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- ApexCharts CSS (pas obligatoire, mais si besoin) -->
+   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock %} 
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Filtres -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label for="date1" class="form-label">Date début</label>
+            <input type="datetime-local" name="date1" id="date1" class="form-control" value="{{ request.GET.date1 }}">
+        </div>
+        <div class="col-md-3">
+            <label for="date2" class="form-label">Date fin</label>
+            <input type="datetime-local" name="date2" id="date2" class="form-control" value="{{ request.GET.date2 }}">
+        </div>
+        <div class="col-md-3">
+            <label for="caissier" class="form-label">Caissier</label>
+            <select name="caissier" id="caissier" class="form-select">
+                <option value="">Tous</option>
+                {% for c in caissiers %}
+                    <option value="{{ c.id_utilisateur }}" {% if request.GET.caissier == c.id_utilisateur|stringformat:"s" %}selected{% endif %}>{{ c.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="produit" class="form-label">Produit</label>
+            <input type="text" name="produit" id="produit" class="form-control" placeholder="Nom du produit" value="{{ request.GET.produit }}">
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-danger px-4">Filtrer</button>
+        </div>
+    </form>
+
+    <!-- Cartes statistiques (style Apex Dashboard) -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="apex-card">
+                <h6>Total ventes</h6>
+                <h3 id="totalVentes">{{ total_ventes }} FCFA</h3>
+                <div id="sparkline-ventes" class="sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="apex-card">
+                <h6 >Produits vendus</h6>
+                <h3 id="totalProduits">{{ total_produits }}</h3>
+                <div id="sparkline-produits" class="sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="apex-card">
+                <h6>Clients</h6>
+                <h3 id="totalClients">{{ total_clients }}</h3>
+                <div id="sparkline-clients" class="sparkline"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="apex-card">
+                <h6>Bénéfices</h6>
+                <h3 id="totalBenefices">{{ total_benefices }} FCFA</h3>
+                <div id="sparkline-benefices" class="sparkline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row g-4">
+        <div class="col-md-6 " >
+            <div class="  bg-white p-2 rounded" style="background:#1a1a1a;">
+                <h4 class="text-center">Ventes par caissier</h4>
+                <div id="ventes_par_caissier" style="border-radius: 15px;"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="bg-white p-2 rounded">
+                <h4 class="text-center">Top 5 Produits</h4>
+                <div id="top_produits" ></div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="bg-white p-2 rounded">
+              <h5 class="text-center">Histogramme des ventes</h5>
+                <div id="histogramme" style="border-radius: 15px;"></div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- ⬇️ ICI tu insères le tableau juste après les graphiques ⬇️ -->
+ <div class="text-end mb-3">
+    <a href="{% url 'export_pdf' %}?date1={{ request.GET.date1 }}&date2={{ request.GET.date2 }}&caissier={{ request.GET.caissier }}&produit={{ request.GET.produit }}" 
+       class="btn btn-outline-danger" target="_blank">
+        Exporter en PDF
+    </a>
+</div>
+
+<div class="row mt-5">
+  <div class="col-md-12">
+    <h3 class="text-white mb-3">Détails des ventes filtrées</h3>
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-bordered text-center">
+        <thead class="bg-danger text-white">
+          <tr>
+            <th>Date</th>
+            <th>Facture</th>
+            <th>Caissier</th>
+            <th>Client</th>
+            <th>Total</th>
+            <th>Produits</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vente in ventes %}
+          <tr>
+            <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
+            <td>{{ vente.id_facture.code_facture }}</td>
+            <td>{{ vente.id_utilisateur.username }}</td>
+            <td>{{ vente.id_client.nom_client }}</td>
+            <td>{{ vente.montanttotal }} FCFA</td>
+            <td>
+              <ul class="list-unstyled">
+                {% for item in vente.lignevente_set.all %}
+                  <li>{{ item.id_produit.nom_produit }} ({{ item.quantite }})</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">Aucune vente trouvée</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+
+<!-- ApexCharts depuis CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<!-- CountUp.js depuis CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.7/countUp.umd.js"></script>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // 🔁 Données dynamiques depuis Django
+    const sparklineVentes = JSON.parse('{{ sparkline_ventes|default:"[]"|safe|escapejs }}');
+const sparklineProduits = JSON.parse('{{ sparkline_produits|default:"[]"|safe|escapejs }}');
+const sparklineClients = JSON.parse('{{ sparkline_clients|default:"[]"|safe|escapejs }}');
+const sparklineBenefices = JSON.parse('{{ sparkline_benefices|default:"[]"|safe|escapejs }}');
+
+console.log("SPARK VENTES:", '{{ sparkline_ventes|safe|escapejs }}');
+
+    // ⏱️ Animation CountUp pour les totaux
+    function animateCount(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const value = parseFloat(el.textContent.replace(/,/g, '')) || 0;
+      const counter = new countUp.CountUp(id, value, {
+  duration: 2,
+  separator: ','
+});
+
+
+      if (!counter.error) {
+  counter.start();
+} else {
+  console.error(counter.error); // ✅ utiliser countUp.error, pas "e"
+}
+    }
+
+    animateCount('totalVentes');
+    animateCount('totalProduits');
+    animateCount('totalClients');
+    animateCount('totalBenefices');
+
+    // 🎨 Configuration commune pour chaque sparkline
+    const sparklineOptions = (data, color) => ({
+      chart: {
+        type: 'area',
+        height: 50,
+        sparkline: { enabled: true },
+      },
+      stroke: {
+        curve: 'smooth',
+        width: 2,
+      },
+      fill: {
+        opacity: 0.3,
+        colors: [color],
+      },
+      series: [{ data }],
+      colors: [color],
+      tooltip: { enabled: false }
+    });
+
+    // 📈 Initialisation des sparklines
+    new ApexCharts(document.querySelector("#sparkline-ventes"), sparklineOptions(sparklineVentes, '#e60000')).render();
+    new ApexCharts(document.querySelector("#sparkline-produits"), sparklineOptions(sparklineProduits, '#ff4d4d')).render();
+    new ApexCharts(document.querySelector("#sparkline-clients"), sparklineOptions(sparklineClients, '#ff6666')).render();
+    new ApexCharts(document.querySelector("#sparkline-benefices"), sparklineOptions(sparklineBenefices, '#b30000')).render();
+  });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+  const histogrammeData = JSON.parse('{{ histogramme|safe|escapejs }}');
+  const topProduitsData = JSON.parse('{{ top_produits|safe|escapejs }}');
+  const ventesCaissierData = JSON.parse('{{ ventes_par_caissier|safe|escapejs }}');
+
+  // Histogramme (ventes par jour)
+  const histo = new ApexCharts(document.querySelector("#histogramme"), {
+    chart: { type: 'bar', height: 300, background: '#1e1e1e',borderRadius: 10,},
+    series: [{
+      name: 'Total',
+      data: histogrammeData.map(i => i.total)
+    }],
+    xaxis: {
+      categories: histogrammeData.map(i => i.date),
+      labels: { style: { colors: '#fff' } }
+    },
+    colors: ['#e60000']
+  });
+  histo.render();
+
+  // Top produits vendus
+  const topChart = new ApexCharts(document.querySelector("#top_produits"), {
+    chart: { type: 'bar', height: 200, background: '#1e1e1e' },
+    series: [{
+      name: 'Quantité',
+      data: topProduitsData.map(i => i.quantite)
+    }],
+    xaxis: {
+categories: topProduitsData.map(i => i.nom_produit),
+      labels: { style: { colors: '#fff' } }
+    },
+    colors: ['#e60000']
+  });
+  topChart.render();
+ console.log("TOP PRODUITS DATA :", topProduitsData);
+
+  // Ventes par caissier (pie chart)
+  const pie = new ApexCharts(document.querySelector("#ventes_par_caissier"), {
+  chart: {
+    type: 'pie',
+    height: 200,
+    background: '#1e1e1e'
+  },
+  series: ventesCaissierData.map(i => i.total),
+  labels: ventesCaissierData.map(i => i.caissier),  // CORRECTION ICI
+  colors: ['#e60000', '#ff4d4d', '#ff6666', '#ff9999', '#b30000'],
+  legend: {
+    labels: {
+      colors: '#fff'
+    }
+  }
+});
+pie.render();
+
+</script>
+
+
+
+
+{% endblock %} 

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h2>Historiques des achats de {{ client.nom_client}}</h2>
+{% if historiques %}
+    {% for h in historiques %}
+        <div>
+            <h4>Vente du {{ h.vente.date_vente|date:"d/m/Y H:i"}} - {{ h.vente.statut|capfirst}}</h4>
+            <p>Total : {{h.vente.montantTotal}} FCFA</p>
+
+            <table border="1">
+                <tr>
+                    <th>Produit</th>
+                    <th>Reference</th>
+                    <th>qunatité</th>
+                    <th>Prix unitaire</th>
+                    <th>sous-total</th>
+                </tr>
+                {% for ligne in h.lignes %}
+                <tr >
+                    <td>{{ ligne.id_produit.nom_produit}}</td>
+                    <td>{{ ligne.id_produit.reference}}</td>
+                    <td>{{ ligne.quantite}}</td>
+                    <td>{{ ligne.prix_unitaire}}</td>
+                    <td>{{ ligne.sous_total}}</td>
+
+                </tr>
+                {% endfor %}
+                </table>
+
+                {% if h.facture %}
+                    <p>
+                       <a href="{% url 'facture' h.facture.id_facture %}" target="_blank">
+                        Voir la facture
+                       </a>
+
+                    </p>
+                {% else %}
+                    <p><em>Pas de facture</em></p>
+                {% endif %}
+
+        </div>
+            <hr>
+            
+    {% endfor %}
+{% else %}
+           <p> Aucun achat trouvé pour ce client</p>
+{% endif %}
+        <a href="{% url 'client_list'%}"> Retour</a> 
+           
+</body>
+
+</html>

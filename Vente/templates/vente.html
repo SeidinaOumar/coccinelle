@@ -1,0 +1,421 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vente - Coccinelle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- CSS personnalisé -->
+    <link rel="stylesheet" href="{% static 'vente.css' %}" />
+</head>
+<body>
+    <!-- Barre de navigation supérieure -->
+      <div id="header" class="  d-flex justify-content-between align-items-center px-2 py-1 mb-1 " >
+      <!-- Bouton Retour -->
+      <button id="btn-retour" class="btn-retour" >
+      <i class=" ifact bi bi-chevron-left"></i>
+      </button>
+
+  <!-- Titre ou logo au centre (optionnel) -->
+  <h5 class="titre m-0"> 🛒Point de Vente - Coccinelle</h5>
+   
+  <a href="{% url 'retour_produit' %}" style="text-decoration: none;">
+    <button  class="btn-retour-prd  rounded-pill" title="Retourner Produit">
+        <i class="fas fa-refresh"></i>+<i class="fas fa-boxes   me-1"></i>
+    </button>
+    </a>
+
+  <!-- Bouton drawer factures -->
+  <button id="btn-factures" class="btn-fact">
+    <i class=" ifact fas fa-file-invoice"></i>
+    <i class="ifact fas fa-chevron-down ms-1" id="arrow-icon"></i>
+  </button>
+  <button onclick="toggleTheme()" id="themeButton" class="theme-toggle-circle" >
+      <i id="themeIcon" class="bi bi-moon-fill"></i>
+   </button>
+</div>
+
+    <div class="container-fluid py-2">
+  <div class="row g-4">
+
+    <!-- 🧺 Panier à gauche -->
+    <div class="col-lg-9 ">
+       <div class="card card-custompanier p-3" style="width: 90%; margin-left: 25px;">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-4">
+  
+  <!-- Zone de scan -->
+  <div class="scanner-area p-3 shadow-sm rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="cursor: pointer;">
+    <div class="position-relative">
+      <i class="bi bi-upc-scan scan-icon mb-2"></i>
+      <span id="scan-status" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 8px;">&nbsp;</span>
+    </div>
+    <span class="scan-text mb-2">Scannez le code-barres ici 🔻</span>
+    <input type="text" id="barcode-scanner" class="form-control scan-input" placeholder="En attente de scan..." autofocus style="max-width: 300px;" />
+  </div>
+
+  <!-- Zone de recherche -->
+  <div class="search-area p-3 shadow-sm rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="width: 20%; position: relative; cursor: pointer;">
+    <div class="position-relative">
+      <i class="search-icon bi bi-search fs-2 mb-2"></i>
+      <span id="search-status" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 8px;">&nbsp;</span>
+    </div>
+    <span class=" search-text mb-2 ">Rechercher un produit</span>
+    <input type="text" id="search-nom-produit" class="form-control" placeholder="">
+    
+    <!-- Résultats -->
+    <ul id="resultats-produits" class="list-group position-absolute z-3 mt-1" style="width: 100%; top: 100%; left: 0;"></ul>
+       </div>
+
+        </div>
+       <h3 class="section-title">Panier</h3>
+           <div class="panier-scroll">
+
+            <div id="cart-body" class="d-flex flex-wrap gap-2">
+          <!-- Ici s'afficheront les cartes -->
+          <div class="text-success text-center py-3 d-flex flex-column align-items-center justify-content-center text-center"
+           id="panier-vide-msg"> 
+            <i   style="font-size: 4.60rem; ">🛒</i>
+            Votre panier est vide
+          </div>
+         </div>
+
+         
+      </div>
+    </div>
+  </div>
+
+    <!-- 👤 Client, 💰 Montants, 🧾 Factures récentes à droite -->
+    <div class="col-lg-3 ">
+
+      <!-- 🔸 Client -->
+<div class="client-section mb-2 position-relative" style="z-index: 100;">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h3 class="section-title mb-0">Client</h3>
+    <div class="position-relative">
+      <button id="btn-toggle-ajout-client" type="button" class="btn-clt ">
+        <i class="fas fa-plus-circle"></i> Ajouter client
+      </button>
+
+      <!-- 🔽 Dropdown juste sous le bouton -->
+      <div id="ajout-client-dropdown" class="bg-white border rounded shadow p-3 mt-2"
+           style="position: absolute; top: 100%; right: 0; width: 280px; display: none;">
+        <h6 class="mb-2">Nouveau client</h6>
+        <form id="form-ajout-client">
+          <input type="text" class="form-control mb-2" placeholder="Nom" required />
+          <input type="text" class="form-control mb-2" placeholder="Téléphone" />
+          <input type="text" class="form-control mb-2" placeholder="Adresse" />
+          <button type="submit" class="btn btn-success btn-sm w-100">
+            <i class="fas fa-save"></i> Enregistrer
+          </button>
+        </form>
+      </div>
+    </div>
+      </div>
+          <input type="text" class="form-control" id="client-num" placeholder="Recherche par n°" style="width: 290px;" />
+          <div class="d-flex gap-2 mt-2">
+            <button type="button" class="btn-red" id="btn-add-client">
+           <i class="fas fa-search"></i> Rechercher client
+           </button>
+           <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-annuler-client">
+             <i class="bi bi-x-circle"></i> Annuler 
+            </button>
+         </div>
+
+
+          <div class="client-info">
+            <p><i class="fas fa-user icon"></i><strong>Nom:</strong> <span id="client-name" style="font-style:georgia;"></span></p>
+            <p><i class="fas fa-phone icon"></i><strong>Contact :</strong> <span id="client-contact"></span></p>
+            <p><i class="bi bi-gift icon"></i><strong>Point:</strong> <span id="client-point"></span></p>
+          </div>
+        </form>
+      </div>
+
+      <!-- 🔸 Montants -->
+      <div class="montants-section mb-3" id="zone-totaux">
+        <div class="montant-item">
+          <span><i class="fas fa-money-bill"></i><strong>Total</strong></span>
+          <span class="text-danger" id="total-price" 
+           style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">0 FCFA</span>
+        </div>
+        <!-- Ligne de séparation pointillée -->
+        <hr class="dashed-separator ">
+        <div class="montant-item">
+          <span><i class="fas fa-hand-holding-usd"></i><strong>Reçu</strong> </span>
+          <span><input type="number" class="form-control" id="montantRecu" style="width: 120px;" placeholder="0 FCFA"></span>
+        </div>
+         <!-- Ligne de séparation pointillée -->
+    <hr class="dashed-separator">
+        <div class="montant-item">
+          <span><i class="fas fa-exchange-alt"></i><strong> À rendre</strong></span>
+          <span id="montantRendu" class="text-success">0 FCFA</span>
+        </div>
+        <!-- Ligne de séparation pointillée -->
+    <hr class="dashed-separator">
+        <div class="montant-item">
+          <span><i class="fas fa-percentage"></i><strong>Remise</strong> </span>
+          <span><input type="number" class="form-control" id="remise-global" min="0" max="100" style="width: 80px;" placeholder="%"></span>
+        </div>
+       
+        <button class="valider-btn mt-3" id="btn-valider-vente">
+          <i class="fas fa-check-circle"></i> Valider la vente
+        </button>
+      </div>
+
+      <!-- 🔸 Factures récentes -->
+    <!-- 🔽 Dropdown factures récentes -->
+<div id="facture-dropdown" class="position-absolute bg-white border rounded shadow p-3" 
+     style="top: 50px; right: 30px; width: 300px; display: none; z-index: 999;">
+  <h6 class="mb-2">🧾 Factures récentes</h6>
+  <table class="table table-sm table-bordered mb-0">
+    <thead class="table-light">
+      <tr>
+        <th style="font-size: 0.8rem;">Facture</th>
+        <th style="font-size: 0.8rem;">Client</th>
+        <th style="font-size: 0.8rem;">Action</th>
+      </tr>
+    </thead>
+    <tbody id="liste-factures">
+      <!-- Lignes insérées dynamiquement -->
+    </tbody>
+  </table>
+</div>
+
+
+
+    </div> <!-- Fin col-lg-4 -->
+
+  </div> <!-- Fin row -->
+</div> <!-- Fin container -->
+
+    <!-- Bootstrap JS + Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JS personnalisé -->
+<!-- JS   POUR L4ACTIVATION DES CHAMP¨S INPUTS ET LE POINT ACTIVE OU DESC-->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const scannerArea = document.querySelector('.scanner-area');
+  const scannerInput = document.getElementById('barcode-scanner');
+  const scanStatus = document.getElementById('scan-status');
+
+  const searchArea = document.querySelector('.search-area');
+  const searchInput = document.getElementById('search-nom-produit');
+  const searchStatus = document.getElementById('search-status');
+
+  // Clic sur toute la zone => focus input
+  scannerArea.addEventListener('click', () => scannerInput.focus());
+  searchArea.addEventListener('click', () => searchInput.focus());
+
+  // Gérer focus/blur scanner
+  scannerInput.addEventListener('focus', () => {
+    scanStatus.classList.replace('bg-danger', 'bg-success');
+  });
+  scannerInput.addEventListener('blur', () => {
+    scanStatus.classList.replace('bg-success', 'bg-danger');
+  });
+
+  // Gérer focus/blur recherche
+  searchInput.addEventListener('focus', () => {
+    searchStatus.classList.replace('bg-danger', 'bg-success');
+  });
+  searchInput.addEventListener('blur', () => {
+    searchStatus.classList.replace('bg-success', 'bg-danger');
+  });
+  // Forcer le statut actif si le champ est déjà focus au chargement
+if (document.activeElement === scannerInput) {
+  scanStatus.classList.replace('bg-danger', 'bg-success');
+}
+
+});
+
+</script>    
+    <script>
+  function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById('themeIcon');
+
+    const isDark = body.getAttribute('data-theme') === 'dark';
+
+    if (isDark) {
+      body.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      icon.className = 'bi bi-moon-fill';
+    } else {
+      body.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      icon.className = 'bi bi-sun-fill';
+    }
+
+    // Animation de rotation
+    icon.style.transform = 'rotate(360deg)';
+    setTimeout(() => {
+      icon.style.transform = 'rotate(0deg)';
+    }, 400);
+  }
+
+  // Charger le thème sauvegardé à l’ouverture
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    const icon = document.getElementById('themeIcon');
+
+    if (savedTheme === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
+      icon.className = 'bi bi-sun-fill';
+    } else {
+      icon.className = 'bi bi-moon-fill';
+    }
+  });
+</script>
+
+
+     <script>
+  const btnAjoutClient = document.getElementById("btn-toggle-ajout-client");
+  const dropdownAjout = document.getElementById("ajout-client-dropdown");
+
+  btnAjoutClient.addEventListener("click", () => {
+    if (dropdownAjout.style.display === "none" || dropdownAjout.style.display === "") {
+      dropdownAjout.style.opacity = 0;
+      dropdownAjout.style.display = "block";
+      setTimeout(() => {
+        dropdownAjout.style.transition = "opacity 0.3s ease-in-out";
+        dropdownAjout.style.opacity = 1;
+      }, 10);
+    } else {
+      dropdownAjout.style.opacity = 0;
+      setTimeout(() => {
+        dropdownAjout.style.display = "none";
+      }, 300);
+    }
+  });
+
+  // Ferme le dropdown si on clique ailleurs
+  document.addEventListener("click", function (event) {
+    if (!btnAjoutClient.contains(event.target) && !dropdownAjout.contains(event.target)) {
+      dropdownAjout.style.opacity = 0;
+      setTimeout(() => {
+        dropdownAjout.style.display = "none";
+      }, 300);
+    }
+  });
+
+  // Action d’enregistrement temporaire
+  document.getElementById("form-ajout-client").addEventListener("submit", function (e) {
+    e.preventDefault();
+    alert("Client ajouté !");
+    dropdownAjout.style.opacity = 0;
+    setTimeout(() => {
+      dropdownAjout.style.display = "none";
+    }, 300);
+  });
+</script>
+<script>
+document.getElementById("form-ajout-client").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const nom_client = this.querySelector('input[placeholder="Nom"]').value;
+  const contact = this.querySelector('input[placeholder="Téléphone"]').value;
+  const adresse = this.querySelector('input[placeholder="Adresse"]').value;
+
+  fetch("/vente/ajouter_client/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+    body: JSON.stringify({ nom_client, contact, adresse }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Client ajouté !");
+      document.getElementById("client-name").textContent = data.client.nom;
+      document.getElementById("client-contact").textContent = data.client.contact;
+      document.getElementById("client-point").textContent = data.client.point;
+      document.getElementById("ajout-client-dropdown").style.display = "none";
+    } else {
+      alert("Erreur : " + data.message);
+    }
+  })
+  .catch(error => {
+    alert("Erreur réseau");
+    console.error("Erreur:", error);
+  });
+});
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+
+  <script>
+  const btnDrawer = document.getElementById("btn-factures");
+  const dropdown = document.getElementById("facture-dropdown");
+
+  btnDrawer.addEventListener("click", () => {
+    const visible = dropdown.style.display === "block";
+    dropdown.style.display = visible ? "none" : "block";
+  });
+
+  // Cacher si on clique en dehors
+  document.addEventListener("click", function(event) {
+    if (!btnDrawer.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  // Bouton retour
+  document.getElementById("btn-retour").addEventListener("click", () => {
+    window.history.back();
+  });
+</script>
+
+
+    <script>
+  function chargerDernieresFactures() {
+    fetch('/vente/latest-factures/')
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.getElementById('liste-factures');
+        tbody.innerHTML = ''; // Vider le tableau
+
+        data.factures.forEach(facture => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td style="font-size: 0.75rem;">${facture.code_facture}</td>
+            <td style="font-size: 0.75rem;">${facture.client}</td>
+            <td>
+              <a href="/vente/facture/${facture.code_facture}/" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 0.7rem;">🖨️</a>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  }
+
+  // Charger au démarrage
+  document.addEventListener('DOMContentLoaded', chargerDernieresFactures);
+
+  // À appeler aussi après validation d’une vente
+</script>
+
+  <script src="{% static 'vente0.js' %}"></script>
+
+</body>
+</html>
+
+

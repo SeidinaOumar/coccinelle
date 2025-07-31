@@ -1,0 +1,592 @@
+
+
+<!-- stock/templates/stock.html -->
+{% extends 'core/templates/nav0.html' %}
+{% load static %}
+
+{% block content %}
+
+{% block title %}   <title> Stock et Approvisionnement</title> {% endblock %}
+
+{% block extra_css %}
+<!-- HTML de la nouvelle page stock.html style Coccinelle -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap 5.3.3 JS Bundle (avec Popper.js pour les modals, tooltips, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap 5.3.3 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="{% static 'stock.css' %}">
+{% endblock %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center "></div>
+  <div class="text-start mb-4">
+  <h3 class="fw-bold text-dark d-inline-flex align-items-center" style="font-size: 1.8rem;">
+   <i class="fas fa-dolly-flatbed fa-1x  me-3" style="color: #e60000"></i>
+    Stock & Approvisionnement
+  </h3>
+  <a href="{% url 'approv_scan' %}" class="btn btn-outline-dark rounded-pill px-4">
+      <i class="fas fa-truck-loading me-2"></i>Approvisionner un produit
+    </a>
+  </div>
+</div>
+
+
+  <!-- Première ligne -->
+  <div class="row g-4 mb-3">
+    <!-- Graph rond + bouton -->
+    <div class="col-md-3">
+      <div class="card-custom "  >
+         <div class="d-flex justify-content-between align-items-center mb-1">
+      <h6 class="mb-0" style=" color: #e60000;">Répartition par catégories</h6>
+      
+    </div>
+        <div id="chart-circular" style="height: 170px;"></div>
+        
+      </div>
+    </div>
+
+    <!-- Courbe Entrées / Sorties -->
+    <div class="col-md-5">
+      <div class="card-custom" style="height: 280px;">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+        <h6 class="mb-2" style=" color: #e60000;">Entrées et Sorties</h6>
+        <a href="{% url 'mouvements' %}" style="text-decoration: none;">
+        <button class="btn btn-outline-mouvement d-flex align-items-center rounded-pill">
+        <i class="bi bi-arrow-left-right me-2"></i> Voir Mouvement Stock
+        </button>
+        </a>
+        </div>
+        <div id="chart-line" ></div>
+      </div>
+    </div>
+
+    <!-- Alertes -->
+    <div class="col-md-4">
+      <div class=" stock-alerts-card rounded p-3 h-60" style="background-color: #222;">
+  <h6 class="mb-3 text-white">
+    <i class="bi bi-exclamation-circle-fill me-2 text-danger"></i> Alertes de stock
+  </h6>
+  <div class="alert-table">
+
+    <!-- 🔴 Stock faible -->
+    {% for produit in produits_seuil %}
+    <div class="alert-row d-flex align-items-center justify-content-between mb-3 p-2 rounded" style="background-color: #333;">
+      <div class="text-start">
+        <div class="fw-bold text-white">{{ produit.nom_produit }}</div>
+        <div class="text-white small">Réf: {{ produit.reference }}</div>
+        <div class="text-warning small">Quantité faible ({{ produit.quantite }} ≤ {{ produit.stock_min }})</div>
+      </div>
+      <div class="alert-dot">
+        <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-white">Aucune alerte de stock faible</p>
+    {% endfor %}
+
+    <!-- 🟠 Proche expiration -->
+    {% for approv in approv_proche_expiration %}
+    <div class="alert-row d-flex align-items-center justify-content-between mb-3 p-2 rounded" style="background-color: #333;">
+      <div class="text-start">
+        <div class="fw-bold text-white">{{ approv.id_produit.nom_produit }}</div>
+        <div class="text-white small">Réf: {{ approv.id_produit.reference }}</div>
+        <div class="text-warning small">Proche expiration ({{ approv.id_appro.date_expiration|date:"d/m/Y" }})</div>
+      </div>
+      <div class="alert-dot">
+        <i class="bi bi-clock-history text-warning"></i>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-white">Aucun produit proche de l’expiration</p>
+    {% endfor %}
+
+    <!-- ⚫ Expiré -->
+    {% for approv in approv_expire %}
+    <div class="alert-row d-flex align-items-center justify-content-between mb-3 p-2 rounded" style="background-color: #333;">
+      <div class="text-start">
+        <div class="fw-bold text-white">{{ approv.id_produit.nom_produit }}</div>
+        <div class="text-white small">Réf: {{ approv.id_produit.reference }}</div>
+        <div class="text-danger small">Expiré depuis le {{ approv.id_appro.date_expiration|date:"d/m/Y" }}</div>
+      </div>
+      <div class="alert-dot">
+        <i class="bi bi-x-octagon-fill text-danger"></i>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-white">Aucun produit expiré</p>
+    {% endfor %}
+
+  </div>
+</div>
+
+    </div>
+  </div>
+
+  <!-- Deuxième ligne -->
+  <div class="row g-4">
+        <!-- Graph bar scrollable -->
+    <div class="col-md-8">
+      <div class="card-custom  " style="background: #fff; ">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+        <h6 class="mb-3" style=" color: #e60000;">Quantité par Produit</h6>
+        <a href="{% url 'ajouter_produit' %}" class="btn btn-outline-mouvement d-flex align-items-center rounded-pill">
+          Ajouter Produit
+        </a>
+        </div>
+        <div class="scroll-x">
+          <div id="chart-bar" style="min-width: 1000px; height: 200px; " ></div>
+        </div>
+      </div>
+    </div>
+        <!-- Liste des catégories -->
+    <div class="col-md-4 ">
+          <div class="d-flex justify-content-between align-items-center mb-3  ">
+            <h6 class="fw-bold" style="color: #e60000;">Liste des Catégories</h6>
+            <button class="btn btn-outline-danger btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#categorieModal">
+              <i class="fas fa-plus-circle me-1"></i> Ajouter Catégorie
+            </button>
+            
+          </div>
+          <div class="card flex-fill shadow rounded-3 p-3" style="max-height: 240px; overflow-y: auto;">
+          {% if categories %}
+          <div class="cat-scroll">
+          <ul class="list-group list-group-flush">
+            {% for categorie in categories %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ categorie.nom }}</strong>
+                <span class="badge bg-danger rounded-pill ms-2">{{ categorie.nombre_produits }}</span>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-danger rounded-circle me-1" title="Modifier"
+                  onclick="openEditModal('{{ categorie.pk }}', '{{ categorie.nom }}', '{{ categorie.description|escapejs }}')"
+                  data-bs-toggle="modal" data-bs-target="#editCategorieModal">
+                  <i class="bi bi-pencil-fill text-white"></i>
+                </button>
+                {% url 'delete_categorie' categorie.pk as delete_url %}
+                <a href="#" class="btn btn-sm btn-danger rounded-circle" title="Supprimer"
+                  onclick="openDeletePopup('{{ delete_url }}','{{ categorie.pk }}','{{ categorie.nom }}')">
+                  <i class="bi bi-trash-fill text-white"></i>
+                </a>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">Aucune catégorie disponible.</p>
+          {% endif %}
+          </div>
+          </div>
+    </div>
+
+
+
+  </div>
+  <!-- 🔴 Liste Produits + Scan à intégrer en bas -->
+<div class="mt-5">
+  <!-- Scan box -->
+  <div class="scan-box  p-4 rounded shadow-sm mb-4 text-center">
+    <i class="fas fa-barcode fa-2x text-danger"></i>
+    <h5 class="mt-2 fw-bold text-dark">Scanner un produit</h5>
+    <input type="text" id="scanInput" class="form-control mt-3 w-50 mx-auto" placeholder="Scanner ici..."  oninput="chercherProduit()" />
+  </div>
+
+  <!-- Résultat produit scanné -->
+  <div id="resultatProduit" class="card card-produit d-none mb-4 shadow">
+    <div class="row g-0">
+      <div class="col-md-3">
+        <img id="imgProduit" src="" alt="Image produit" class="img-fluid rounded-start w-100 h-100 object-fit-cover">
+      </div>
+      <div class="col-md-9 p-3">
+        <h5 id="nomProduit" class="text-danger fw-bold"></h5>
+        <p><strong>Référence :</strong> <span id="refProduit"></span></p>
+        <p><strong>Prix :</strong> <span id="prixProduit"></span> FCFA</p>
+        <p><strong>Stock :</strong> <span id="stockProduit"></span></p>
+        <p><strong>Catégorie :</strong> <span id="catProduit"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau Produits -->
+  <div class="card shadow border-0 mb-5">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0  " style="color: #e60000;"><i class="bi bi-bag-fill me-2 bg-dark rounded-3"></i> Liste des Produits</h5>
+      
+    </div>
+    <div class="table-responsive scroll-x ">
+      <table class="table table-hover align-middle text-center mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Référence</th>
+            <th>Code Barre</th>
+            <th>Stock</th>
+            <th>Prix d'Achat</th>
+            <th>Prix Vente</th>
+            <th>Categorie</th>
+            <th>Stock Min</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="listeProduits">
+          {% for produit in produits %}
+          <tr>
+            <td>
+              {% if produit.image %}
+              <img src="{{ produit.image.url }}" class="rounded" width="50" height="50" style="object-fit: cover;">
+              {% else %}
+              <span class="text-muted">Aucune</span>
+              {% endif %}
+            </td>
+            <td>{{ produit.nom_produit }}</td>
+            <td>{{ produit.reference }}</td>
+            <td>{{ produit.codes_barres }}</td>
+            <td>{{ produit.quantite }}</td>
+            <td>{{ produit.prix_achat }}</td>
+            <td>{{ produit.prix_vente }} FCFA</td>
+            <td>{{ produit.categorie }}</td>
+            <td>{{ produit.stock_min }}</td>
+            
+            <td>
+              <a href="{% url 'edit_product' produit.pk %}" class="btn btn-sm btn-outline-dark rounded-circle me-1" title="Modifier">
+                <i class="fas fa-pen"></i>
+              </a>
+              {% url 'delete_product' produit.pk as delete_url %}
+              <a href="#" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer"
+                 onclick="openDeleteProduitModal('{{ delete_url }}','{{ produit.pk }}','{{ produit.nom_produit }}')">
+                <i class="fas fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="height: 50px;"></div>
+</div>
+<!-- Modal Ajouter Catégorie -->
+     <div class="modal fade" id="categorieModal" tabindex="-1" aria-hidden="true">
+       <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color:  #fdfdfd;">
+            <form method="POST" action="{% url 'ajouter_categorie' %}">
+                {% csrf_token %}
+              <div class="mb-4 text-center">
+                <h5 class="fw-bold  mb-1" style="color:#e60000"><i class="fas fa-list me-2"></i>Nouvelle catégorie</h5>
+                <small class="text-muted">Veuillez renseigner les informations</small>
+              </div>
+        <div class="mb-3">
+         <label for="id_nom" class="form-label">Nom</label>
+         {{ form_categorie.nom }}
+        </div>
+        <div class="mb-3">
+       <label for="id_description" class="form-label">Description</label>
+       {{ form_categorie.description }}
+       </div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+       <button type="submit" class="btn btn-success">Enregistrer</button>
+       </div>
+           </form>
+       </div>
+     </div>
+</div>
+
+</div>
+<!-- Modal Éditer Catégorie -->
+<div class="modal fade" id="editCategorieModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color: #fdfdfd;">
+      <form method="POST" id="editCategorieForm">
+        {% csrf_token %}
+        <div class="mb-4 text-center">
+          <h5 class="fw-bold text-primary mb-1"><i class="bi bi-pencil-fill me-2"></i>Modifier catégorie</h5>
+          <small class="text-muted">Modifier le nom et la description</small>
+        </div>
+        <input type="hidden" name="id" id="editCategorieId">
+        <div class="mb-3">
+          <label for="editCategorieNom" class="form-label">Nom</label>
+          <input type="text" name="nom" id="editCategorieNom" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label for="editCategorieDescription" class="form-label">Description</label>
+          <textarea name="description" id="editCategorieDescription" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-success">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function openEditModal(id, nom, description) {
+    document.getElementById("editCategorieId").value = id;
+    document.getElementById("editCategorieNom").value = nom;
+    document.getElementById("editCategorieDescription").value = description;
+    
+    // Modifier l'action du formulaire dynamiquement
+    document.getElementById("editCategorieForm").action = `/stock/categorie/modifier/${id}/`;  // ou {% url 'edit_categorie' 0 %} avec remplacement JS
+  }
+</script>
+<!-- Modal Confirmation Suppression CATEGORIE -->
+<div class="modal fade" id="deleteCategorieModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color: #fff;">
+      <form id="deleteCategorieForm" method="POST">
+        {% csrf_token %}
+        <div class="text-center">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+          <h5 class="mt-3 mb-2 text-danger fw-bold">Confirmer la suppression</h5>
+          <p class="text-muted mb-4">Voulez-vous vraiment supprimer la catégorie <span id="categorieName" class="fw-bold text-dark"></span> ?</p>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-danger">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Modal Confirmation Suppression Produit -->
+<div class="modal fade" id="deleteProduitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg p-4" style="background-color: #fff;">
+      <form id="deleteProduitForm" method="POST">
+        {% csrf_token %}
+        <div class="text-center">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+          <h5 class="mt-3 mb-2 text-danger fw-bold">Confirmer la suppression</h5>
+          <p class="text-muted mb-4">Voulez-vous vraiment supprimer le produit <span id="produitName" class="fw-bold text-dark"></span> ?</p>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-danger">Supprimer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function openDeleteProduitModal(deleteUrl, produitId, produitNom) {
+    const form = document.getElementById('deleteProduitForm');
+    form.action = deleteUrl;
+    document.getElementById('produitName').textContent = produitNom;
+
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteProduitModal'));
+    deleteModal.show();
+  }
+</script>
+
+
+<script>
+  function openDeletePopup(deleteUrl, categorieId, categorieNom) {
+    const form = document.getElementById('deleteCategorieForm');
+    form.action = deleteUrl;
+
+    document.getElementById('categorieName').textContent = categorieNom;
+
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteCategorieModal'));
+    deleteModal.show();
+  }
+</script>
+</div>
+
+
+{% if messages %}
+  <div id="custom-alert-wrapper" class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100" style="z-index: 1055;">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center shadow-lg rounded-3" style="background-color: white; min-width: 350px; max-width: 500px; padding: 20px;">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+  <script>
+    // Disparition automatique après 5s
+    setTimeout(function () {
+      const alertWrapper = document.getElementById('custom-alert-wrapper');
+      if (alertWrapper) {
+        alertWrapper.style.opacity = '0';
+        alertWrapper.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          alertWrapper.remove();
+        }, 500);
+      }
+    }, 5000);
+  </script>
+  {% endif %}
+  
+
+
+
+<script>
+  function openDeletePopupProd(url,produitId, nomProduit) {
+    const popup = document.getElementById('popup-confirm');
+    const form = document.getElementById('popup-delete-form');
+    const message = document.getElementById('popup-message');
+
+    message.textContent = `Voulez-vous vraiment supprimer "${nomProduit}" ?`;
+    form.action = url;
+
+    popup.style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('popup-confirm').style.display = 'none';
+  } 
+function chercherProduit() {
+  const code = document.getElementById('scanInput').value;
+  if (code.length >= 3) {
+    fetch(`/produits/scan/produit/?code=${code}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log("JSON reçu :", data);
+
+        const tbody = document.getElementById('listeProduits');
+        tbody.innerHTML = ""; // Vider la liste avant de l'afficher
+
+        if (data.found) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>
+              ${data.image ? `<img src="${data.image}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">` : "Pas d'image"}
+            </td>
+            <td>${data.nom}</td>
+            <td>${data.reference}</td>
+            <td>${data.codes_barres}</td>
+            <td>${data.quantite}</td>
+            <td>${data.prix_achat}</td>
+            <td>${data.prix_vente} FCFA</td>
+            <td>${data.categorie}</td>
+            <td>${data.stock_min}</td>
+            <td>
+              <a href="#" class="btn btn-edit">
+                <i class="fas fa-pen-to-square"></i>
+              </a>
+               {% url 'edit_product' produit.pk as delete_url %}
+                  <a href="#" class="btn btn-edit" onclick="openDeletePopup('{{ delete_url }}','{{ produit.pk }}','{{ produit.nom_produit }}')">
+                  <i class="fa-solid fa-trash"></i>
+                   </a>
+            </td>
+          `;
+          tbody.appendChild(row);
+        } else {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td colspan="6" class="text-center text-danger fw-bold">Produit introuvable</td>`;
+          tbody.appendChild(row);
+        }
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération du produit :", error);
+      });
+  }
+}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 🔴 Graph circulaire : quantité par catégorie
+   new ApexCharts(document.querySelector("#chart-circular"), {
+  chart: {
+    type: 'pie',
+    height: 220
+  },
+  series: {{ chart_donut_data|safe }},
+  labels: {{ chart_donut_labels|safe }},
+  colors: ['#e60000', '#00cc99', '#ffcc00', '#000'],
+  dataLabels: {
+    enabled: true,
+    style: {
+      fontSize: '14px',
+      colors: ['#fff']
+    }
+  },
+  legend: {
+    position: 'bottom',
+    labels: { colors: ['#000'] }
+  },
+  tooltip: {
+    y: {
+      formatter: function (val) {
+        return val + " unités";
+      }
+    }
+  }
+}).render();
+
+
+    // 🟢 Graph ligne : Entrées / Sorties par mois
+    new ApexCharts(document.querySelector("#chart-line"), {
+      chart: { type: 'line', height: 220 },
+      series: [
+        { name: 'Entrées', data: {{ chart_line_entrees|safe }} },
+        { name: 'Sorties', data: {{ chart_line_sorties|safe }} }
+      ],
+      xaxis: {
+        categories: {{ chart_line_labels|safe }},
+        labels: { style: { colors: '#000' } }
+        
+      },
+      yaxis: {
+      min: 0,
+      max: 1000,  // adapte selon tes valeurs
+      tickAmount: 5,
+      labels: { style: { colors: '#000' } }
+       },
+      colors: ['#00cc99', '#e60000'],
+      stroke: { curve: 'smooth', width: 2 },
+      
+      legend: { labels: { colors: '#000' } }
+    }).render();
+
+   // 🟡 Barres horizontales scrollables : Produits
+   new ApexCharts(document.querySelector("#chart-bar"), {
+  chart: {
+    type: 'bar',
+    height: 200,
+    toolbar: { show: false },
+    animations: { enabled: true },
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 6,
+      columnWidth: '30%',
+      distributed: true, // Important pour que chaque barre prenne une couleur différente
+      endingShape: 'rounded'
+    }
+  },
+  series: [{
+    name: 'Quantité',
+    data: {{ chart_bar_data|safe }}
+  }],
+  xaxis: {
+    categories: {{ chart_bar_labels|safe }},
+    labels: {
+      rotate: -45,
+      style: { colors: '#000', fontSize: '12px' }
+    }
+  },
+  // Palette de couleurs personnalisée (se répétera automatiquement si plus de 4 barres)
+  colors: ['#e60000', '#ff6600', '#00cc99', '#3399ff', '#ffcc00'],
+  dataLabels: { enabled: false },
+  grid: { show : false,
+    padding: {
+    bottom: -30  // Réduction de l’espace en bas
+  }  
+  },
+  tooltip: { theme: 'dark' }
+}).render();
+
+  });
+</script>
+
+
+{% endblock %}

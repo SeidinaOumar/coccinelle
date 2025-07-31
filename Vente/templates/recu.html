@@ -1,0 +1,13 @@
+{% for vente in dernieres_ventes %}
+<div class="d-flex justify-content-between align-items-center bg-white p-2 mb-2 shadow-sm border-start border-3 border-danger rounded">
+    <div>
+        <strong class="text-danger">{{ vente.code_facture }}</strong><br />
+        <small>Client : {{ vente.client.nom }}</small>
+    </div>
+    <a href="{% url 'imprimer_facture' vente.id %}" target="_blank" class="btn btn-outline-dark btn-sm">
+        🖨️ Imprimer
+    </a>
+</div>
+{% empty %}
+<p class="text-muted">Aucune facture récente.</p>
+{% endfor %}

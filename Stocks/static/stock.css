@@ -1,0 +1,198 @@
+/* stock.css - nouvelle page Coccinelle style */
+
+
+h3, h5, h6 {
+  color: white;
+}
+
+.btn-coccinelle {
+  background-color: #e60000;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.4rem 1.2rem;
+  font-weight: bold;
+}
+
+.btn-coccinelle:hover {
+  background-color: #cc0000;
+}
+
+.card-custom {
+  background-color: #ffffff;
+  color: #e60000;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+.alert-box {
+  background-color: #222;
+  padding: 1rem;
+  border-left: 4px solid #e60000;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}.stock-alerts-card {
+  background: linear-gradient(to right, #1a1a1a, #2b0000);
+  border-left: 4px solid red;
+  
+}
+
+.alert-table {
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.alert-row {
+  background-color: rgba(255, 0, 0, 0.05);
+  border-left: 3px solid red;
+  transition: background-color 0.3s ease;
+}
+
+.alert-row:hover {
+  background-color: rgba(255, 0, 0, 0.15);
+}.alert-content{
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.alert-dot {
+  font-size: 1.5rem;
+  animation: blink 1.2s infinite;
+}.alert-table {
+  max-height: 210px; /* ajuste selon ton besoin (ex. 4-5 lignes) */
+  overflow-y: auto;
+}
+
+/* Amélioration affichage scrollbar */
+.alert-table::-webkit-scrollbar {
+  width: 6px;
+}
+
+.alert-table::-webkit-scrollbar-thumb {
+  background-color: #e60000;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}.stock-layout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+
+.scroll-x {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.scroll-x > div {
+  display: inline-block;
+  min-width: 300px;
+  margin-right: 1rem;
+}.card{
+    background-color: #111;
+    color: white;
+  }
+  .card h6 {
+    color: #e60000;
+  }
+  .list-group-item {
+    background-color: #111;
+    color: white;
+    border: 1px solid #333;
+  }
+
+.category-list {
+  background-color: #111;
+  padding: 1rem;
+  border-radius: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.category-list li {
+  border-bottom: 1px solid #333;
+  padding: 0.5rem 0;
+  color: #fff;
+}.btn-outline-mouvement {
+  border: 1px solid #e60000;
+  color: #e60000;
+  background-color: transparent;
+}
+
+.btn-outline-mouvement:hover {
+  background-color: #e60000;
+  color: white;
+}/* Section Scan */
+.scan-box {
+  background: #fff;
+  border-left: 5px solid #e60000;
+  border-right: 5px solid #e60000;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Résultat produit scanné */
+.card-produit img {
+  object-fit: cover;
+  height: 100%;
+  border-radius: 5px 0 0 5px;
+}
+
+/* Tableau Produits */
+.table thead th {
+  background-color: #000;
+  color: #fff;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table td img {
+  border-radius: 5px;
+}
+
+/* Scroll horizontal */
+.scroll-x {
+  overflow-x: auto;
+  min-width: 100%;
+  
+}
+
+.scroll-x::-webkit-scrollbar {
+  height: 6px;
+ 
+}
+
+.scroll-x::-webkit-scrollbar-thumb {
+  background: #e60000;
+  border-radius: 10px;
+  cursor: pointer;
+}.table-responsive {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+
+
+
+
+/* Apex Charts Resize Fix */
+.apexcharts-canvas {
+  background-color: transparent !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scroll-x > div {
+    min-width: 250px;
+  }
+}

@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Facture</title>
+    <link rel="stylesheet" href="{% static 'fact.css' %}">
+</head>
+<body onload="window.print();">
+    <div class="recu-container">
+        <div class="entete">
+            <div class="logo-section" style="display: flex;align-items: center;">
+            <img src="{% static 'img/logo_coccinelle.png' %}" alt="" height="20">
+            <div class="logo-text" style="display: flex; flex-direction: column;">
+                <div class="sup " style="font-size: 15px;">SuperMarché</div>
+                <div class="coccinelle">coccinelle </div>
+                
+            </div>
+            </div>
+            <h2>coccinelle</h2>
+            <p>Facture n°{{ facture.code_facture }}</p>
+            <p>Date : {{ facture.date_paiement }}</p>
+        </div>
+
+        <hr>
+C
+        <div class="client">
+            <h4>Client</h4>
+            <p>Nom : {{ facture.id_vente.id_client.nom_client }}</p>
+            <p>Email : {{ facture.id_vente.id_client.email }}</p>
+            <p>Contact : {{ facture.id_vente.id_client.contact }}</p>
+            <p>Adresse : {{ facture.id_vente.id_client.adresse }}</p>
+        </div>
+
+        <div class="details">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix unitaire</th>
+                        <th>Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ligne in lignes_vente %}
+                    <tr>
+                      <td>{{ lignes_ventes }}</td>
+                        <td>{{ ligne.id_produit }}</td>
+                        <td>{{ ligne.id_produit.nom_produit }}</td>
+                        <td>{{ ligne.quantite }}</td>
+                        <td>{{ ligne.prix_unitaire }}</td>
+                        <td>{{ ligne.sous_total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="total">Total : {{ facture.montant_net }} FCFA</p>
+        </div>
+
+    
+    </div>
+</body>
+</html>

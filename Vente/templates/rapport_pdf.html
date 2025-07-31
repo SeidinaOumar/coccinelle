@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport PDF</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333; padding: 6px; text-align: center; }
+    th { background-color: #e60000; color: white; }
+    h2, h4 { color: #e60000; }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">Rapport des ventes</h2>
+   <h4>{{prenom}} {{nom}}</h4>
+  <h4>Total Ventes : {{ total_ventes }} FCFA</h4>
+  <h4>Total Produits vendus : {{ total_produits }}</h4>
+  <h4>Clients uniques : {{ total_clients }}</h4>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Facture</th>
+        <th>Caissier</th>
+        <th>Client</th>
+        <th>Montant</th>
+        <th>Produits</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vente in ventes %}
+        <tr>
+          <td>{{ vente.date_vente|date:"d/m/Y H:i" }}</td>
+          <td>{{ vente.lignevente.id_facture.code_facture }}</td>
+          <td>{{ vente.id_utilisateur.username }}</td>
+          <td>{{ vente.id_client.nom_client }}</td>
+          <td>{{ vente.montanttotal }} FCFA</td>
+          <td>
+            {% for item in vente.lignevente_set.all %}
+              {{ item.id_produit.nom_produit }} ({{ item.quantite }})<br>
+            {% endfor %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">Aucune vente trouvée</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+from base_sql.models import Produit
+from django.core.files import File
+import os
+
+produit = Produit.objects.get(pk=17)
+image_path = r"C:\Users\S.KAMISSOKO\Desktop\coccinelle\mangue.jpg"
+with open(image_path, 'rb') as f:
+    produit.image.save(os.path.basename(image_path), File(f), save=True)
+
+
+produit.save()
+
+from base_sql.models import Produit
+from django.core.files import File
+import os
+
+produit = Produit.objects.get(pk=17)
+image_path = r"C:\Users\S.KAMISSOKO\Desktop\coccinelle\mangue.jpeg"
+with open(image_path, 'rb') as f:
+    produit.image.save(os.path.basename(image_path), File(f), save=True)
+
+
+produit.save()
+
+from base_sql.models import Produit
+from django.core.files import File
+import os
+
+produit = Produit.objects.get(pk=3)
+image_path = r"C:\Users\S.KAMISSOKO\Desktop\coccinelle\tomate.jpeg"
+with open(image_path, 'rb') as f:
+    produit.image.save(os.path.basename(image_path), File(f), save=True)
+
+
+produit.save()

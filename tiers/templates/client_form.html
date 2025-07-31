@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modification client</title>
+    <link rel="stylesheet" href="{% static 'client_form.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-box">
+            <h2><i class="fas fa-user-edit"></i> Modifier le client</h2>
+
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                        <li class="error">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-fields">
+                    {{ form.as_p }}
+                </div>
+                <div class="form-buttons">
+                    <button type="submit"><i class="fas fa-save"></i> Enregistrer</button>
+                    <a href="{% url 'client_list' %}" class="cancel-btn">
+                        <i class="fas fa-times-circle"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

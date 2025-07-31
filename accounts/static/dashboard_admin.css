@@ -1,0 +1,316 @@
+.stat-card {
+  background: linear-gradient(135deg, #8b0000, #000);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+  height:20px;               /* Hauteur fixe */
+  display: flex;
+  
+  justify-content:flex-start;
+  padding: 20px 25px;
+  font-size: 1rem;  
+  width: 318px;           /* Taille de texte modérée */
+}
+
+.card{
+  background: linear-gradient(135deg, #111, #1c1c1c);
+  box-shadow: 0 0 15px rgba(230, 0, 0, 0.1);
+}
+
+.stat-card:hover {
+  transform: scale(1.05);
+}
+
+.stat-icon {
+  font-size: 36px;
+  color: red;
+  flex-shrink: 0;
+}
+
+/* Pour bien gérer l'alignement du texte */
+.stat-card div {
+  gap: 30px;
+  justify-content: start;
+}
+
+.stat-card .card-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  font-style: bold;
+}
+
+.stat-card .card-text {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+
+.chart-box {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+
+}
+
+.alert-box {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+  color: white;
+  height: 100%;
+}
+
+.alert-table thead {
+  color: red;
+}
+
+.alert-table td {
+  color: white;
+}
+
+.horizontal-table {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+}
+
+.horizontal-table h5 {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111;
+}
+
+.horizontal-table .btn-outline-danger {
+  font-size: 13px;
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.horizontal-table .btn-outline-danger:hover {
+  background-color: #e60000;
+  color: #fff;
+  border-color: #e60000;
+}
+
+.horizontal-table table {
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.horizontal-table thead {
+  background-color: #111;
+  color: #fff;
+  font-size: 14px;
+}
+
+.horizontal-table th,
+.horizontal-table td {
+  vertical-align: middle;
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.horizontal-table tbody tr:hover {
+  background-color: #f5f5f5;
+  transition: 0.2s ease;
+}
+
+.horizontal-table img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
+.horizontal-table .fw-semibold {
+  color: #333;
+}
+
+.horizontal-table .text-danger {
+  color: #e60000 !important;
+  font-weight: bold;
+}
+
+.horizontal-table .btn-dark {
+  background-color: #1f1f1f;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.horizontal-table .btn-dark:hover {
+  background-color: #ffff;
+  
+}
+
+.horizontal-table .fa-eye {
+  font-size: 14px;
+  color: #e60000;
+
+
+}/* Scroll sur la table uniquement si trop de lignes */
+.ventes-scroll {
+  max-height: 280px; /* ajuste selon ton besoin (ex. 4-5 lignes) */
+  overflow-y: auto;
+}
+
+/* Amélioration affichage scrollbar */
+.ventes-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ventes-scroll::-webkit-scrollbar-thumb {
+  background-color: #e60000;
+  border-radius: 4px;
+}
+
+.alert-table {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.alert-row {
+  background-color: rgba(255, 0, 0, 0.05);
+  border-left: 3px solid red;
+  transition: background-color 0.3s ease;
+  
+}
+
+.alert-row:hover {
+  background-color: rgba(255, 0, 0, 0.15);
+}.alert-content{
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.alert-dot {
+  font-size: 1.5rem;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}.stock-layout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.stats .card {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #111, #1c1c1c);
+  box-shadow: 0 0 15px rgba(230, 0, 0, 0.1);
+  transition: 0.3s ease;
+  border: none;
+}
+
+
+.stats h5 {
+  color: #e60000;
+}
+
+.stats .text-dark {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+/* Ligne colorée en bas des cartes apex */
+.bottom-line {
+  position: relative;
+  bottom: -16px;
+  left: -9px;
+  height: 4px;
+  width: 106%;
+  background-color: #e60000; /* violet ou rouge selon ton thème */
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* le boutton d'action*/
+.floating-action {
+  position: fixed;
+  top: 42%;
+  left: 250px; /* largeur sidebar */
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  background-color: #000; /* fond noir */
+  border: none;
+  border-radius: 30px; /* arrondi */
+  padding: 8px 15px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(230, 0, 0, 0.8);
+  transition: background-color 0.3s ease;
+  color: white;
+  font-weight: 600;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btn-action:hover {
+  background-color: #1a1a1a;
+}
+
+.btn-action img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  margin-right: 10px;
+  border-radius: 5px;
+}
+
+.action-menu {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  border-left: 3px solid #e60000;
+  padding: 12px 20px;
+  border-radius: 8px;
+  min-width: 200px;
+  box-shadow: 0 0 15px rgba(230, 0, 0, 0.7);
+}
+
+.hidden {
+  display: none;
+}
+
+.action-menu a {
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  margin-bottom: 12px;
+  font-size: 15px;
+  transition: color 0.2s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.action-menu a i {
+  margin-right: 10px;
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.action-menu a:hover {
+  color: #e60000;
+}
+

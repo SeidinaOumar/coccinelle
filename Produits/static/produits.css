@@ -1,0 +1,170 @@
+/* Style amélioré pour l'affichage compact des cartes produits */
+.produit-card {
+  border: 1px solid #ccc;
+  border-radius: 0.75rem;
+  height: 110px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  background-color: white;
+  transition: transform 0.2s ease;
+}
+.produit-card:hover {
+  transform: scale(1.01);
+}
+.produit-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}.image-placeholder {
+  background: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #888;
+  user-select: none;
+}
+
+.card-body {
+  padding: 0 !important;
+}
+.card-title {
+  font-size: 0.95rem;
+}
+.card-text {
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+.produit-card .btn-sm {
+  padding: 0px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  
+}
+
+/* Réduction du formulaire de recherche avec style moderne */
+form.row {
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  background: #f9f9f9;
+  border-left: 4px solid #e60000;
+}
+
+form input[type="text"],
+form select {
+  height: 38px !important;
+  font-size: 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+}
+
+form .btn-danger {
+  background-color: #e60000;
+  height: 38px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: none;
+}
+
+form .btn-danger:hover {
+  background-color: #cc0000;
+}
+
+/* Responsive pour cartes */
+@media (max-width: 768px) {
+  .produit-card {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .produit-img {
+    width: 100%;
+    height: 140px;
+    margin: 0 0 1rem 0;
+  }
+}
+
+
+
+/* Section de recherche stylisée et compacte */
+form.row {
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  background: #f9f9f9;
+  border-left: 4px solid #e60000;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+form input[type="text"],
+form select {
+  height: 38px !important;
+  font-size: 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.75rem;
+}
+
+form .btn-danger {
+  background-color: #e60000;
+  height: 38px;
+  
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: none;
+  padding: 0 1.5rem;
+  border-radius: 1rem;
+}
+
+form .btn-danger:hover {
+  background-color: #cc0000;
+}
+
+/* Responsive ajusté */
+@media (max-width: 768px) {
+  .produit-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .produit-img {
+    width: 100%;
+    height: auto;
+  }
+
+  form.row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.produit-nom {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px; /* tu peux ajuster selon ton besoin */
+  font-size: 0.85rem; /* un peu plus petit si besoin */
+}.produit-wrapper-scrollable {
+  max-height: 600px; /* hauteur limite à partir de laquelle ça scrolle (ajuste selon ta page) */
+  overflow-y: auto;
+  
+}
+
+/* Pour un scroll discret */
+.produit-wrapper-scrollable::-webkit-scrollbar {
+  width: 2px;
+}
+.produit-wrapper-scrollable::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+

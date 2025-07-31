@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap JS Bundle (inclut Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    </head>
+    <body>
+    <div class="container-fluid mt-4 px-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-dark">
+      <i class="fas fa-receipt text-danger me-2"></i> Toutes les Ventes
+    </h4>
+  </div>
+
+  <!-- Filtres de date -->
+  <div class="card shadow-sm rounded p-3 mb-4 bg-white border-0">
+    <form method="get" class="row g-3">
+      <div class="col-md-3">
+        <input type="date" name="date_debut" value="{{ date_debut }}" class="form-control border-dark rounded" placeholder="Date début">
+      </div>
+      <div class="col-md-3">
+        <input type="date" name="date_fin" value="{{ date_fin }}" class="form-control border-dark rounded" placeholder="Date fin">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-danger w-100 rounded">Filtrer</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card shadow-sm rounded bg-white p-3">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark text-center">
+        <tr>
+          <th>Date</th>
+          <th>Code Facture</th>
+          <th>Client</th>
+          <th>Total</th>
+          <th>Auteur</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vente in ventes %}
+          {% with facture=vente.facture_set.first %}
+          <tr class="text-center align-middle">
+            <td>{{ vente.date_vente|date:"d M Y H:i" }}</td>
+            <td class="fw-semibold text-dark">{{ facture.code_facture }}</td>
+            <td>{{ vente.id_client.nom_client }}</td>
+            <td class="text-danger fw-bold">{{ vente.montanttotal }} FCFA</td>
+            <td class="d-flex align-items-center justify-content-start">
+              {% if vente.id_utilisateur.photo %}
+              <img src="{{ vente.id_utilisateur.photo.url }}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+              {% else %}
+                <img src="{% static 'img/default-avatar.png' %}" alt="photo" class="rounded-circle me-2" width="32" height="32">
+               {% endif %}
+              {{ vente.id_utilisateur.get_full_name }}
+            </td>
+            <td>
+             
+
+              {% if facture %}
+              <a href="{% url 'imprimer_facture' facture.code_facture %}" class="btn btn-sm btn-outline-danger" target="_blank" title="Imprimer">
+                <i class="fas fa-print"></i>
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}
+        {% empty %}
+          <tr>
+            <td colspan="6" class="text-center text-muted">Aucune vente trouvée.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</html>

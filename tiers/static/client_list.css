@@ -1,0 +1,115 @@
+
+    
+    
+    
+
+ 
+
+
+/* --- Cartes de statistiques --- */
+
+
+.btn-add-client {
+    background-color: #8b0000;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.btn-add-client:hover {
+    background-color: #a60000;
+}
+
+/* --- Tableau --- */
+/* Table style modernisé */
+.modern-client-table th {
+  font-weight: 600;
+  vertical-align: middle;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.modern-client-table td {
+  font-size: 14px;
+  color: #333;
+  background-color: #fdfdfd;
+}
+
+.modern-client-table tr:hover td {
+  background-color: #f7f2f2;
+  transition: background-color 0.3s;
+}
+
+/* Action buttons */
+.modern-client-table .btn i {
+  font-size: 4px;
+}
+.btn-sm {
+  padding: 0px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+}
+/* Table container */
+.card-header h5 {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.card-header i {
+  font-size: 20px;
+  color: #e60000;
+}
+
+
+
+.modal-overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+}.custom-modal{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 1000;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+
+}.modal-buttons{
+    margin-top: 20px;
+    display: felx;
+    justify-content: space-around;
+}.d-none{
+    display: none ;
+}.popup-confirmation {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-box {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px #000;
+  min-width: 300px;
+}

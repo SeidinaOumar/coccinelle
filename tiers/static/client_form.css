@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #ebedf3;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    position: relative;
+}
+
+.form-box {
+    background: rgba(20, 20, 20, 0.95);
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s ease;
+}
+
+.form-box::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, red, black, red, black);
+    animation: rotateBorder 6s linear infinite;
+    z-index: -1;
+    opacity: 0.4;
+}
+
+@keyframes rotateBorder {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ff4c4c;
+}
+
+.form-fields p {
+    margin-bottom: 15px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+.form-buttons {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+button, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff0000, #990000);
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+button:hover, .cancel-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+}
+
+.message {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.error {
+    color: #ff4c4c;
+    background-color: #1c1c1c;
+    padding: 10px;
+    border-radius: 5px;
+}

@@ -1,0 +1,274 @@
+{% extends "core/templates/nav0.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap JS (nécessaire pour les modals, toasts, dropdowns...) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<link rel="stylesheet" href="{% static 'gestion_caissier.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header avec bouton ajout -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="cocci-title"><i class="bi bi-person-badge-fill text-danger"></i> Gestion des Caissiers</h2>
+        <a href="{% url 'ajouter_caissier' %}" class="btn btn-danger rounded-pill shadow-sm">
+            <i class="bi bi-plus-circle"></i> Ajouter Caissier
+        </a>
+    </div>
+
+    <!-- Graphique -->
+    <!-- Graphique + photos -->
+<div class="row mb-5">
+  
+  
+
+  <div class="col-md-9">
+    <div class="card shadow h-100, ">
+      <div class="card-body">
+        <h5 class="card-title text-center text-muted mb-3">
+          <i class="bi bi-bar-chart-fill me-2 text-danger"></i>Ventes Hebdomadaires
+        </h5>
+        <div class="chart-container">
+          <canvas id="salesChart" height="120" ></canvas>
+        </div>
+        
+        
+<script id="sales-data" type="application/json">
+  {
+    "labels": [
+      {% for caissier in caissiers %}
+        "{{ caissier.username }}"{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "data": [
+      {% for caissier in caissiers %}
+        {{ caissier.total_ventes|default:0 }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "data_journaliere": [
+      {% for caissier in caissiers %}
+        {{ caissier.ventes_jour|default:0 }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "images": [
+      {% for caissier in caissiers %}
+        {% if caissier.photo %}
+          "{{ caissier.photo.url }}"
+          
+        {% else %}
+          "{% static 'img/default-avatar.png' %}"
+        {% endif %}
+        {% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+</script>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Tableau de recherche -->
+    <!-- Zone recherche + affichage des caissiers -->
+<div class="card shadow mb-5">
+  <div class="card-body">
+    <input type="text" id="searchInput" class="form-control mb-4" placeholder="🔍 Rechercher un caissier...">
+
+    <div class="row" id="caissiersContainer">
+      {% for caissier in caissiers %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 position-relative">
+          <div class="card-body d-flex align-items-center">
+            <!-- Photo + point statut -->
+            <div class="position-relative me-3">
+             <img src="{% if caissier.photo %}{{ caissier.photo.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+              class="rounded-circle" width="60" height="60" alt="Photo de {{ caissier.username }}">
+              <!-- Point de connexion (vert si connecté, rouge sinon) -->
+               <span class="badge rounded-circle p-2 {% if caissier.is_online %}bg-success{% else %}bg-danger{% endif %}" title="{% if caissier.is_online %}En ligne{% else %}Hors ligne{% endif %}">
+               </span>
+               </div>
+
+
+            <!-- Infos -->  
+       <div class="flex-grow-1">
+       <h6 class="fw-bold mb-1 text-dark">{{ caissier.username }}</h6>
+       <p class="mb-0 small text-muted"><i class="bi bi-telephone me-1"></i>{{ caissier.contact }}</p>
+       <p class="mb-0 small text-muted"><i class="bi bi-person me-1"></i>{{ caissier.first_name }}{{ caissier.last_name }}  </p>
+       <p class="mb-0 small text-muted"><i class="bi bi-envelope me-1"></i>{{ caissier.email }}</p>
+
+  <!-- Badge statut admin -->
+  <span class="badge {% if caissier.is_active %}bg-success{% else %}bg-secondary{% endif %} me-2 mt-2">
+    {% if caissier.is_active %}Actif{% else %}Inactif{% endif %}
+  </span>
+   </div>
+
+          </div>
+
+          <!-- Bouton modifier -->
+          <div class="position-absolute top-0 end-0 m-2">
+            <a href="{% url 'modifier_caissier' caissier.pk %}" class="btn btn-sm btn-outline-warning rounded-circle">
+              <i class="bi bi-pencil"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">Aucun caissier trouvé.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div id="caissierModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-person-circle me-2"></i>Profil du Caissier</h5>
+        {% if user.photo %}
+           <img src="#" class="rounded-circle" width="40" height="40">
+         {% else %}
+             <img src="{% static 'images/default-avatar.png' %}" class="rounded-circle" width="40" height="40">
+        {% endif %}
+
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Nom :</strong> <span id="modal-name"></span></p>
+        <p><strong>Email :</strong> <span id="modal-email"></span></p>
+        <p><strong>Contact :</strong> <span id="modal-contact"></span></p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" id="modal-rapport" class="btn btn-outline-danger">Voir rapport de vente</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- JSON hidden safe data -->
+
+<script>
+  const rawData = document.getElementById('sales-data').textContent;
+  console.log("Données JSON pour Chart :", rawData);  // ← Affiche dans la console
+</script>
+
+<script>
+  // MODAL PROFIL
+  const modal = new bootstrap.Modal(document.getElementById('caissierModal'));
+  document.querySelectorAll(".caissier-profile").forEach(el => {
+      el.addEventListener("click", () => {
+          document.getElementById("modal-name").innerText = el.dataset.nom;
+          document.getElementById("modal-email").innerText = el.dataset.email;
+          document.getElementById("modal-contact").innerText = el.dataset.contact;
+          document.getElementById("modal-rapport").href = `/rapport/caissier/${el.dataset.id}/`;
+          modal.show();
+      });
+  });
+
+  // CHART JS
+ function loadImages(urls) {
+  return Promise.all(urls.map(url => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null); // On ignore l’erreur pour pas bloquer tout
+  })));
+}
+
+const chartData = JSON.parse(document.getElementById('sales-data').textContent);
+
+loadImages(chartData.images).then(imageObjs => {
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  const salesChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        {
+          label: 'Ventes Hebdomadaires',
+          data: chartData.data,
+          backgroundColor: '#dc3545',
+      
+        },
+        {
+          label: 'Ventes Journalières',
+          data: chartData.data_journaliere,
+          backgroundColor: '#343a40',
+          
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: { display: true },
+        tooltip: { enabled: true }
+      },
+      layout: {
+    padding: {
+      bottom: 20  // assez grand pour laisser de la place à l'image
+    }
+  },
+      scales: {
+        x: {
+          stacked: false,
+          ticks: {
+            callback: function() { return ''; }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 5,
+            callback: function(value) {
+              return Number.isInteger(value) ? value : null;
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'custom_x_axis_images',
+      afterDraw: chart => {
+        const { ctx, chartArea, scales: { x } } = chart;
+        x.ticks.forEach((tick, i) => {
+          const img = imageObjs[i];
+          if (!img) return;
+
+          const xPos = x.getPixelForTick(i);
+          const yPos = chartArea.bottom +4;
+          const imgSize = 40;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(xPos, yPos + imgSize / 2, imgSize / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(img, xPos - imgSize / 2, yPos, imgSize, imgSize);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+});
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% endblock %}
+
+
+
+

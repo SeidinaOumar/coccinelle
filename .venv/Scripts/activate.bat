@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Gestcom_coccinelle\.venv
+set VIRTUAL_ENV=C:\Users\User\Desktop\PFE\Gestcom_coccinelle\.venv
 
 if not defined PROMPT set PROMPT=$P$G
 
